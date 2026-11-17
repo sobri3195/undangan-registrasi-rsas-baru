@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/lib/bootstrap.php';
+require __DIR__.'/lib/access.php';
 require __DIR__.'/lib/csv_import.php';
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 header('Content-Type: application/json; charset=utf-8');
@@ -25,6 +26,7 @@ try {
     if (!is_string($action)||!in_array($action,['events','event_state','set_event_status','create_event','update_guest','status','search','lookup','invitation','preview_import','import','checkin','export'],true)) reply(['error'=>'Rute tidak ditemukan.'],404);
     $write=in_array($action,['preview_import','import','checkin','create_event','update_guest','set_event_status'],true);
     if ($_SERVER['REQUEST_METHOD']!==($write?'POST':'GET')) { header('Allow: '.($write?'POST':'GET'));reply(['error'=>'Metode tidak diizinkan.'],405); }
+    access_guard(in_array($action,['events','event_state','search','lookup','checkin'],true)?'staff':'admin');
     if ($write) csrf();
     // Release the session lock before DB work: polling must not block check-in.
     session_write_close();

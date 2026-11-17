@@ -1,17 +1,19 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/lib/bootstrap.php';
+require __DIR__.'/lib/access.php';
 $route=$_GET['page']??'scan';
 $scan=is_string($route)&&in_array($route,['scan','tamu','petugas','beranda'],true);
 $admin=is_string($route)&&in_array($route,['admin','koordinator'],true);
 if (!$scan && !$admin) http_response_code(404);
 $page=$scan?'scan':($admin?'admin':'404');
 header('Permissions-Policy: camera='.($scan?'(self)':'()').', microphone=(), geolocation=()');
+if (($scan || $admin) && !access_allowed($admin?'admin':'staff')) {if($admin && array_key_exists('print',$_GET)) http_response_code(access_role()===null?401:403);require __DIR__.'/lib/access_page.php';exit;}
 if ($admin && array_key_exists('print',$_GET)) {require __DIR__.'/lib/print_qr.php';exit;}
 ?><!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#103e43"><link rel="icon" type="image/png" href="/assets/logo-rsas.png"><title><?= $admin?'Admin Kehadiran':'Scan Tablet' ?> · Registrasi RSAS</title><meta name="csrf" content="<?= esc($_SESSION['csrf']) ?>"><link rel="stylesheet" href="/assets/style.css"><script defer src="/assets/vendor/qrcode.js"></script><script defer src="/assets/vendor/qrcode_UTF8.js"></script><script defer src="/assets/vendor/jsQR.js"></script><script defer src="/assets/simple.js"></script></head>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#103e43"><link rel="icon" type="image/png" href="/assets/logo-rsas.png"><title><?= $admin?'Admin Kehadiran':'Scan Tablet' ?> · Registrasi RSAS</title><meta name="csrf" content="<?= esc($_SESSION['csrf']) ?>"><link rel="stylesheet" href="/assets/style.css"><script defer src="/assets/vendor/qrcode.js"></script><script defer src="/assets/vendor/qrcode_UTF8.js"></script><script defer src="/assets/vendor/jsQR.js"></script><script defer src="/assets/simple.js"></script><script defer src="/assets/access.js"></script></head>
 <body data-timezone="<?= esc(configuration()['APP_TIMEZONE']) ?>" data-page="<?= esc($page) ?>" data-base="<?= esc(APP_BASE_URL) ?>">
-<header><a class="brand" href="<?= esc(APP_BASE_URL) ?>/"><img class="brand-logo" src="/assets/logo-rsas.png" width="54" height="54" alt="Lambang RSAU"><span>RSAU<small>PROF. DR. ABDULRACHMAN SALEH</small></span></a><span class="badge" id="connection" role="status">Menghubungkan…</span></header>
+<header><a class="brand" href="<?= esc(APP_BASE_URL) ?>/"><img class="brand-logo" src="/assets/logo-rsas.png" width="54" height="54" alt="Lambang RSAU"><span>RSAU<small>PROF. DR. ABDULRACHMAN SALEH</small></span></a><span class="badge" id="connection" role="status">Menghubungkan…</span><?php if($scan || $admin): ?><div class="access-session"><span><?= access_role()==='admin'?'Admin':'Petugas' ?></span><button id="logout" class="secondary" type="button">Keluar</button></div><?php endif ?></header>
 <nav aria-label="Navigasi utama"><a <?= $scan?'aria-current="page"':'' ?> href="<?= esc(APP_BASE_URL) ?>/"><span aria-hidden="true">▣</span> Scan Tablet</a><a <?= $admin?'aria-current="page"':'' ?> href="<?= esc(APP_BASE_URL) ?>/index.php?page=admin"><span aria-hidden="true">▤</span> Admin Kehadiran</a></nav>
 <main>
 <div class="page-heading"><div><div class="eyebrow">REGISTRASI UNDANGAN RSAS</div><h1><?= $admin?'Setiap kedatangan, tercatat.':($scan?'Selamat datang, tamu kami.':'Halaman tidak ditemukan') ?></h1><p class="intro"><?= $admin?'Pantau acara dan sambut tamu dari keenam tablet dalam satu tempat.':'Pindai undangan, periksa identitas, lalu konfirmasi kehadiran.' ?></p></div><div class="heading-note"><span class="live-dot"></span> <?= $admin?'Pembaruan langsung':'Penerimaan tamu' ?></div></div>

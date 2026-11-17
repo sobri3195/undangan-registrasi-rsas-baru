@@ -38,7 +38,7 @@ acara nyata. Untuk acara nyata klik Acara baru, lalu impor CSV sebenarnya.
 Token dummy bersifat publik/sintetis; jangan dipakai untuk undangan nyata.
 
 Paket tidak berisi akun/password hosting dan belum dipasang di hosting produksi.
-Simpan backup database melalui cPanel/phpMyAdmin. Seluruh halaman tetap tanpa login.
+Simpan backup database melalui cPanel/phpMyAdmin. Data dan fungsi panitia memerlukan PIN.
 
 FILTER ADMIN: pilih Semua Undangan, Sudah Datang, atau Belum Datang di atas
  tabel. Cari nama/perusahaan/jabatan/kode/tablet sesuai filter. Unduh CSV
@@ -75,3 +75,21 @@ Gunakan Batch berikutnya untuk daftar berikut. Token/QR lama tetap sama dan
 mencetak tidak mencatat absensi. Acara Persiapan/Selesai juga boleh dicetak.
 Uji satu kartu pada tablet sebelum mencetak massal. Finalkan daftar sebelum
 mencetak beberapa batch. Simpan PDF di media panitia. Tidak ada migrasi SQL baru.
+
+
+AKSES PANITIA (PERBAIKAN P1):
+- Isi ADMIN_PIN dan STAFF_PIN pada file setting database yang sama. Pada paket
+  satu folder, tetap hanya private/database.php yang perlu diatur.
+- Gunakan dua PIN acak berbeda, masing-masing 8-12 digit; tidak ada PIN bawaan.
+- Masuk di Scan dengan PIN Petugas; masuk di Admin dengan PIN Admin.
+- Petugas tidak dapat mengubah daftar/status acara, membuat QR atau mengunduh laporan.
+- Data undangan, endpoint API dan halaman cetak tidak tersedia tanpa akses.
+- Sesi berlaku 12 jam; tekan Keluar setelah selesai. Mengganti PIN mencabut
+  sesi peran tersebut. Aplikasi tidak menyimpan PIN di cookie/localStorage atau memasukkannya ke SQL.
+- Instalasi baru: satu SQL paket sudah mencakup tabel pembatas percobaan.
+- Upgrade: backup, impor sql/10_akses_panitia.sql dari repositori, pertahankan
+  konfigurasi database yang sudah terisi, tambahkan kedua PIN, unggah kode baru.
+  Jangan menimpa konfigurasi berisi kredensial dengan template kosong.
+- Lima kegagalan per alamat/peran dalam 5 menit membatasi login sementara;
+  batas global tambahan 50 kegagalan/peran per menit. Cookie baru tidak meresetnya.
+- Gunakan HTTPS. Uji Android/iPad dan jaringan lokasi sebelum penerimaan.

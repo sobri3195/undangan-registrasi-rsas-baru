@@ -1,3 +1,4 @@
+import {openPage} from './access-helper.mjs';
 // Run PHP + MySQL with sql/05_scan_sederhana.sql + sql/06_multi_acara.sql on a disposable empty database first.
 // PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8091 node tests/browser.mjs
 import assert from 'node:assert/strict';
@@ -9,7 +10,7 @@ const contexts=[],errors=[];
 try {
  const adminContext=await browser.newContext({viewport:{width:1280,height:900}});contexts.push(adminContext);
  const admin=await adminContext.newPage();admin.on('dialog',dialog=>dialog.accept());admin.on('pageerror',e=>errors.push(e.message));
- const res=await admin.goto(origin+'/index.php?page=admin');assert.equal(res.status(),200);assert.ok(res.headers()['content-security-policy']);assert.match(res.headers()['permissions-policy'],/camera=\(\)/);
+ const res=await openPage(admin,origin+'/index.php?page=admin');assert.equal(res.status(),200);assert.ok(res.headers()['content-security-policy']);assert.match(res.headers()['permissions-policy'],/camera=\(\)/);
  await admin.waitForFunction(()=>document.getElementById('total').textContent==='0');await admin.selectOption('#status-select','dibuka');await admin.locator('#apply-status').click();await admin.waitForFunction(()=>document.getElementById('event-state').dataset.state==='dibuka');
  assert.equal((await admin.request.get(origin+'/index.php?page[]=admin')).status(),404);
  assert.equal((await admin.request.get(origin+'/api.php?event=RSAS-2026&action=checkin')).status(),405);
@@ -24,7 +25,7 @@ try {
  for(let i=1;i<=6;i++) {
   const context=await browser.newContext({viewport:{width:1024,height:768}});contexts.push(context);
   const page=await context.newPage();tablets.push(page);page.on('pageerror',e=>errors.push(e.message));
-  const response=await page.goto(origin+'/');assert.match(response.headers()['permissions-policy'],/camera=\(self\)/);
+  const response=await openPage(page,origin+'/','staff');assert.match(response.headers()['permissions-policy'],/camera=\(self\)/);
   await page.selectOption('#tablet','T0'+i);
   await page.evaluate(()=>{
    const q=window.qrcode(0,'M');q.addData('PT001');q.make();const n=q.getModuleCount(),c=document.createElement('canvas');c.width=c.height=(n+8)*10;const ctx=c.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='black';for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(q.isDark(y,x))ctx.fillRect((x+4)*10,(y+4)*10,10,10);

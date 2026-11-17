@@ -15,3 +15,21 @@ Sebelum acara uji pada Chrome Android dan Safari iPad yang sebenarnya, lewat HTT
 Untuk acara berikutnya, buat acara baru di Admin dan impor CSV-nya. Muat ulang halaman keenam tablet, pilih acara baru pada setiap tablet. Memilih acara di Admin tidak mengganti acara tablet lain. Rekap dan ekspor selalu mengikuti acara terpilih.
 
 Status acara terlihat pada setiap tablet. Persiapan belum menerima check-in; Dibuka mengizinkan scan dan konfirmasi; Selesai menghentikan kamera dan pencatatan. Tablet memeriksa status setiap 3 detik, dan server tetap menolak check-in yang dikirim setelah penutupan. Pergantian status tidak menghapus riwayat. Mintalah panitia membuka acara bila tombol kamera belum aktif; jangan mengganti ke acara lain untuk melewati penutupan.
+
+
+AKSES PANITIA (PERBAIKAN P1):
+- Isi ADMIN_PIN dan STAFF_PIN pada file setting database yang sama. Pada paket
+  satu folder, tetap hanya private/database.php yang perlu diatur.
+- Gunakan dua PIN acak berbeda, masing-masing 8-12 digit; tidak ada PIN bawaan.
+- Masuk di Scan dengan PIN Petugas; masuk di Admin dengan PIN Admin.
+- Petugas tidak dapat mengubah daftar/status acara, membuat QR atau mengunduh laporan.
+- Data undangan, endpoint API dan halaman cetak tidak tersedia tanpa akses.
+- Sesi berlaku 12 jam; tekan Keluar setelah selesai. Mengganti PIN mencabut
+  sesi peran tersebut. Aplikasi tidak menyimpan PIN di cookie/localStorage atau memasukkannya ke SQL.
+- Instalasi baru: satu SQL paket sudah mencakup tabel pembatas percobaan.
+- Upgrade: backup, impor sql/10_akses_panitia.sql dari repositori, pertahankan
+  konfigurasi database yang sudah terisi, tambahkan kedua PIN, unggah kode baru.
+  Jangan menimpa konfigurasi berisi kredensial dengan template kosong.
+- Lima kegagalan per alamat/peran dalam 5 menit membatasi login sementara;
+  batas global tambahan 50 kegagalan/peran per menit. Cookie baru tidak meresetnya.
+- Gunakan HTTPS. Uji Android/iPad dan jaringan lokasi sebelum penerimaan.

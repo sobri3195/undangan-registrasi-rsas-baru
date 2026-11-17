@@ -16,6 +16,7 @@ async function api(action,params={},body){
   const timeout=setTimeout(()=>controller.abort(),12000);
   try{response=await fetch(u,options);}catch{throw Error('Koneksi terputus. Kehadiran belum terkonfirmasi. Periksa internet dan coba lagi.');}finally{clearTimeout(timeout);}
   let result;try{result=await response.json();}catch{throw Error('Respons server tidak valid. Periksa pengaturan PHP/database.');}
+  if(response.status===401){stopCamera();location.reload();throw Error('Sesi akses berakhir. Masukkan PIN kembali.');}
   if(!response.ok)throw Error(result.error||'Permintaan gagal.');return result;
 }
 function tablet(){if(!activeEvent)throw Error('Pilih acara terlebih dahulu.');const value=$('tablet').value;if(!/^T0[1-6]$/.test(value))throw Error('Pilih tablet T01–T06 terlebih dahulu.');return value;}

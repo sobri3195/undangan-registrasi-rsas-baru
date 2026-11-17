@@ -17,9 +17,11 @@ function configuration(): array {
     $file = dirname(__DIR__) . '/private/database.php';
     // The hosting bundle is self-contained; keep the older external location as fallback.
     if (!is_file($file)) $file = dirname(__DIR__, 2) . '/config.local.php';
+    // PIN changes must take effect even when the host caches PHP configuration files.
+    if (is_file($file) && function_exists('opcache_invalidate')) @opcache_invalidate($file, true);
     $local = is_file($file) ? require $file : [];
     $config = [];
-    foreach (['DB_HOST'=>'localhost','DB_PORT'=>'3306','DB_NAME'=>'','DB_USER'=>'','DB_PASS'=>'','APP_TIMEZONE'=>'Asia/Jakarta'] as $key=>$default) {
+    foreach (['DB_HOST'=>'localhost','DB_PORT'=>'3306','DB_NAME'=>'','DB_USER'=>'','DB_PASS'=>'','APP_TIMEZONE'=>'Asia/Jakarta','ADMIN_PIN'=>'','STAFF_PIN'=>''] as $key=>$default) {
         $env = getenv($key);
         $config[$key] = $env !== false ? $env : ($local[$key] ?? $default);
     }

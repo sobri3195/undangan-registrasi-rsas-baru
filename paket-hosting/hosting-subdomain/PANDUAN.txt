@@ -16,7 +16,7 @@ PAKET ACARA RSAS — 19 NOVEMBER 2026, 09.00 WIB
    Tidak perlu mengubah .htaccess, index.php, API, atau file SQL.
    Saat upgrade, pertahankan konfigurasi Anda yang sudah terisi.
 4. Pastikan DNS/TLS subdomain benar. Buka /private/database.php harus 403.
-5. Buka Admin dan pilih acara RSAS-20261119. Pada instalasi baru:
+5. Masuk dengan PIN Admin dan pilih acara RSAS-20261119. Pada instalasi baru:
    total undangan 80, hadir 0, belum hadir 80; status Persiapan.
    Jam 09.00 WIB disertakan pada informasi lokasi acara.
 6. Periksa jabatan/instansi, perwakilan PT dan empat slot keluarga tambahan.
@@ -49,3 +49,21 @@ SETELAH PASANG:
 Tidak ada konfigurasi database yang dikirim melalui percakapan ini. Isi nilainya
 langsung di File Manager cPanel. Jika host/user/password belum cocok, aplikasi
 menampilkan status koneksi tanpa mengungkap password ke browser.
+
+
+AKSES PANITIA (PERBAIKAN P1):
+- Isi ADMIN_PIN dan STAFF_PIN pada file setting database yang sama. Pada paket
+  satu folder, tetap hanya private/database.php yang perlu diatur.
+- Gunakan dua PIN acak berbeda, masing-masing 8-12 digit; tidak ada PIN bawaan.
+- Masuk di Scan dengan PIN Petugas; masuk di Admin dengan PIN Admin.
+- Petugas tidak dapat mengubah daftar/status acara, membuat QR atau mengunduh laporan.
+- Data undangan, endpoint API dan halaman cetak tidak tersedia tanpa akses.
+- Sesi berlaku 12 jam; tekan Keluar setelah selesai. Mengganti PIN mencabut
+  sesi peran tersebut. Aplikasi tidak menyimpan PIN di cookie/localStorage atau memasukkannya ke SQL.
+- Instalasi baru: satu SQL paket sudah mencakup tabel pembatas percobaan.
+- Upgrade: backup, impor sql/10_akses_panitia.sql dari repositori, pertahankan
+  konfigurasi database yang sudah terisi, tambahkan kedua PIN, unggah kode baru.
+  Jangan menimpa konfigurasi berisi kredensial dengan template kosong.
+- Lima kegagalan per alamat/peran dalam 5 menit membatasi login sementara;
+  batas global tambahan 50 kegagalan/peran per menit. Cookie baru tidak meresetnya.
+- Gunakan HTTPS. Uji Android/iPad dan jaringan lokasi sebelum penerimaan.

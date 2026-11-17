@@ -1,3 +1,4 @@
+import {openPage} from './access-helper.mjs';
 // Disposable database seeded with sql/07_shared_hosting_dummy.sql; mutates only synthetic data.
 import assert from 'node:assert/strict';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
@@ -6,7 +7,7 @@ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'
 try{
  const context=await browser.newContext({viewport:{width:1280,height:900}}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  const A='DEMO-RSAS-2026',B='DEMO-MITRA-2027',header='kode,nama,perusahaan,jabatan\n';
- await page.goto(origin+'/index.php?page=admin');await page.waitForFunction(()=>!document.getElementById('event-select').disabled);await page.selectOption('#event-select',A);await page.waitForFunction(()=>document.getElementById('total').textContent==='8');
+ await openPage(page,origin+'/index.php?page=admin');await page.waitForFunction(()=>!document.getElementById('event-select').disabled);await page.selectOption('#event-select',A);await page.waitForFunction(()=>document.getElementById('total').textContent==='8');
  const csrf=await page.locator('meta[name=csrf]').getAttribute('content'),request=page.request;
  async function upload(action,source,event=A){return request.post(origin+'/api.php?'+new URLSearchParams({action,event}),{headers:{'X-CSRF-Token':csrf},multipart:{csv:{name:'list.csv',mimeType:'text/csv',buffer:Buffer.from(source)}}});}
  async function total(event=A){return (await (await request.get(origin+'/api.php?'+new URLSearchParams({action:'status',event}))).json()).total;}
