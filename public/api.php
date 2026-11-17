@@ -11,8 +11,8 @@ function guest(PDO $db,string $event,string $code): array {
 }
 try {
     $action=$_GET['action']??'';
-    if (!is_string($action)||!in_array($action,['events','create_event','status','search','lookup','invitation','import','checkin','export'],true)) reply(['error'=>'Rute tidak ditemukan.'],404);
-    $write=in_array($action,['import','checkin','create_event'],true);
+    if (!is_string($action)||!in_array($action,['events','create_event','update_guest','status','search','lookup','invitation','import','checkin','export'],true)) reply(['error'=>'Rute tidak ditemukan.'],404);
+    $write=in_array($action,['import','checkin','create_event','update_guest'],true);
     if ($_SERVER['REQUEST_METHOD']!==($write?'POST':'GET')) { header('Allow: '.($write?'POST':'GET'));reply(['error'=>'Metode tidak diizinkan.'],405); }
     if ($write) csrf();
     // Release the session lock before DB work: polling must not block check-in.
@@ -46,6 +46,28 @@ try {
     $event=code($_GET['event']??'');
     $q=$db->prepare('SELECT kode,nama,tanggal,lokasi FROM scan_acara WHERE kode=?');$q->execute([$event]);$eventData=$q->fetch();
     if (!$eventData) throw new InvalidArgumentException('Acara tidak ditemukan. Pilih acara yang tersedia.');
+    if ($action==='update_guest') {
+        $raw=file_get_contents('php://input',false,null,0,8193);
+        if (strlen($raw)>8192) throw new InvalidArgumentException('Permintaan terlalu besar.');
+        $b=json_decode($raw,true,16,JSON_THROW_ON_ERROR);
+        if (!is_array($b) || array_diff(array_keys($b),['kode','nama','perusahaan','jabatan','original'])) throw new InvalidArgumentException('Hanya nama, perusahaan dan jabatan yang dapat diperbaiki.');
+        $c=code($b['kode']??'');$values=[];$original=[];
+        if (!is_array($b['original']??null) || count($b['original'])!==3) throw new InvalidArgumentException('Data awal tidak valid. Buka ulang formulir Edit.');
+        foreach (['nama','perusahaan','jabatan'] as $key) {
+            $values[$key]=field($b[$key]??null);
+            field($b['original'][$key]??null);$original[$key]=$b['original'][$key];
+        }
+        if ($values['nama']==='') throw new InvalidArgumentException('Nama wajib diisi.');
+        $db->beginTransaction();
+        $q=$db->prepare('SELECT nama,perusahaan,jabatan FROM scan_tamu WHERE acara=? AND kode=? FOR UPDATE');$q->execute([$event,$c]);$current=$q->fetch();
+        if (!$current) throw new InvalidArgumentException('Undangan tidak ditemukan dalam acara ini.');
+        if ($current!==$original && $current!==$values) {
+            $db->rollBack();reply(['error'=>'Identitas sudah diperbarui dari perangkat lain. Tutup lalu buka ulang Edit sebelum menyimpan.'],409);
+        }
+        $q=$db->prepare('UPDATE scan_tamu SET nama=?,perusahaan=?,jabatan=? WHERE acara=? AND kode=?');
+        $q->execute([$values['nama'],$values['perusahaan'],$values['jabatan'],$event,$c]);
+        $db->commit();reply(['message'=>'Identitas tamu berhasil diperbarui. QR undangan tetap dapat digunakan.']);
+    }
     if ($action==='import') {
         $f=$_FILES['csv']??null;
         if (!$f || $f['error']!==UPLOAD_ERR_OK || $f['size']>5*1024*1024) throw new InvalidArgumentException('Pilih CSV maksimal 5 MB; periksa batas unggah PHP.');
