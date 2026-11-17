@@ -44,3 +44,7 @@ Service worker `/sw.js`, scope `/`, menyimpan halaman dan aset setelah tombol pe
 `php -l public/index.php` dan `npm test` (Node 22+, tanpa dependensi). Uji browser opsional: pasang Playwright di luar folder unggahan; jalankan PHP server, lalu `PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs node tests/browser.mjs` dengan Chromium lokal. Lihat [hasil pengujian](docs/PENGUJIAN.md), [cPanel](docs/CPANEL.md), dan [operasi enam tablet](docs/ENAM-TABLET.md).
 
 Dependensi vendored: qrcode-generator 2.0.4 (MIT; lisensi di header + berkas LICENSE), jsQR 1.4.0 (Apache-2.0). Sumber npm resmi; tidak membutuhkan koneksi registry saat aplikasi berjalan. Jangan unggah folder `demo`, `docs`, atau `tests` ke document root.
+
+## Paket SQL pendamping
+
+Paket pelaporan manual MySQL/MariaDB ada di [sql/README_SQL.md](sql/README_SQL.md). Aplikasi browser tetap tanpa koneksi database. Jangan unggah folder SQL atau backup tamu ke document root; impor terkontrol dilakukan panitia melalui phpMyAdmin.
