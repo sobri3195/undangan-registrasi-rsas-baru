@@ -39,3 +39,8 @@ Token dummy bersifat publik/sintetis; jangan dipakai untuk undangan nyata.
 
 Paket tidak berisi akun/password hosting dan belum dipasang di hosting produksi.
 Simpan backup database melalui cPanel/phpMyAdmin. Seluruh halaman tetap tanpa login.
+
+FILTER ADMIN: pilih Semua Undangan, Sudah Datang, atau Belum Datang di atas
+ tabel. Cari nama/perusahaan/jabatan/kode/tablet sesuai filter. Unduh CSV
+ mengikuti filter dan pencarian, sedangkan ringkasan atas tetap seluruh acara.
+ Pembaruan filter tidak memerlukan impor ulang SQL atau menghapus data lama.

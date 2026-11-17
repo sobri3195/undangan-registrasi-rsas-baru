@@ -109,13 +109,33 @@ try {
         $q=$db->prepare('INSERT INTO scan_catatan(acara,kode,tablet,dicatat_utc) VALUES (?,?,?,UTC_TIMESTAMP(3)) ON DUPLICATE KEY UPDATE tablet=VALUES(tablet)');$q->execute([$event,$c,$b['tablet']]);
         reply(['message'=>$q->rowCount()===1?'Kehadiran berhasil dicatat.':'Tamu ini sudah dicatat pada tablet ini.','duplicate'=>$q->rowCount()!==1]);
     }
+    // Filter and search share the exact same query for the admin table and CSV.
+    $filter=$_GET['filter']??'present';
+    if (!is_string($filter) || !in_array($filter,['all','present','absent'],true)) throw new InvalidArgumentException('Filter kehadiran tidak valid.');
+    $search=field($_GET['q']??'');
+    $where=['t.acara=?'];$params=[$event];
+    $exists='EXISTS (SELECT 1 FROM scan_catatan x WHERE x.acara=t.acara AND x.kode=t.kode)';
+    if ($filter==='present') $where[]=$exists;
+    if ($filter==='absent') $where[]='NOT '.$exists;
+    if ($search!=='') {
+        $like='%'.strtr($search,['!'=>'!!','%'=>'!%','_'=>'!_']).'%';
+        $where[]="(t.kode LIKE ? ESCAPE '!' OR t.nama LIKE ? ESCAPE '!' OR t.perusahaan LIKE ? ESCAPE '!' OR t.jabatan LIKE ? ESCAPE '!' OR EXISTS (SELECT 1 FROM scan_catatan x WHERE x.acara=t.acara AND x.kode=t.kode AND x.tablet LIKE ? ESCAPE '!'))";
+        array_push($params,$like,$like,$like,$like,$like);
+    }
+    $q=$db->prepare("SELECT t.kode,t.nama,t.perusahaan,t.jabatan,
+        CASE WHEN COUNT(c.tablet)>0 THEN 'Sudah Datang' ELSE 'Belum Datang' END AS status,
+        MIN(c.dicatat_utc) AS pertama_utc,COALESCE(GROUP_CONCAT(c.tablet ORDER BY c.tablet SEPARATOR ', '),'') AS tablet,COUNT(c.tablet) AS jumlah_tablet
+        FROM scan_tamu t LEFT JOIN scan_catatan c ON c.acara=t.acara AND c.kode=t.kode
+        WHERE ".implode(' AND ',$where)." GROUP BY t.kode,t.nama,t.perusahaan,t.jabatan
+        ORDER BY pertama_utc DESC,t.nama,t.kode");
+    $q->execute($params);$guests=$q->fetchAll();
     // One grouped row per guest slot, regardless of the number of scanning tablets.
     $q=$db->prepare("SELECT t.kode,t.nama,t.perusahaan,t.jabatan,MIN(c.dicatat_utc) AS pertama_utc,GROUP_CONCAT(c.tablet ORDER BY c.tablet SEPARATOR ', ') AS tablet,COUNT(c.tablet) AS jumlah_tablet FROM scan_tamu t JOIN scan_catatan c ON c.acara=t.acara AND c.kode=t.kode WHERE t.acara=? GROUP BY t.kode,t.nama,t.perusahaan,t.jabatan ORDER BY pertama_utc DESC,t.kode");$q->execute([$event]);$arrivals=$q->fetchAll();
     if ($action==='export') {
-        header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="kehadiran-'. $event .'.csv"');
+        header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="kehadiran-'. $event .'-'. $filter .'.csv"');
         $out=fopen('php://output','w');fwrite($out,"\xEF\xBB\xBF");
-        fputcsv($out,['kode','nama','perusahaan','jabatan','pertama_utc','tablet','jumlah_tablet'],',','"','');
-        foreach ($arrivals as $row) {
+        fputcsv($out,['kode','nama','perusahaan','jabatan','status','pertama_utc','tablet','jumlah_tablet'],',','"','');
+        foreach ($guests as $row) {
             $cells=array_map(static function($s): string { $s=(string)$s;return preg_match('/\A[\s\x{FEFF}]*[=+\-@]|\A[\t\r\n]/u',$s)?"'".$s:$s; },array_values($row));
             fputcsv($out,$cells,',','"','');
         }
@@ -124,7 +144,7 @@ try {
     $q=$db->prepare('SELECT COUNT(*) FROM scan_tamu WHERE acara=?');$q->execute([$event]);$total=(int)$q->fetchColumn();
     $q=$db->prepare('SELECT tablet,COUNT(*) AS jumlah FROM scan_catatan WHERE acara=? GROUP BY tablet');$q->execute([$event]);$tablets=array_fill_keys(['T01','T02','T03','T04','T05','T06'],0);
     foreach ($q as $r) $tablets[$r['tablet']]=(int)$r['jumlah'];
-    reply(['event'=>$event,'event_info'=>$eventData,'total'=>$total,'present'=>count($arrivals),'tablets'=>$tablets,'arrivals'=>$arrivals,'server_utc'=>gmdate('Y-m-d\TH:i:s\Z')]);
+    reply(['event'=>$event,'event_info'=>$eventData,'guests'=>$guests,'filter'=>$filter,'query'=>$search,'total'=>$total,'present'=>count($arrivals),'tablets'=>$tablets,'arrivals'=>$arrivals,'server_utc'=>gmdate('Y-m-d\TH:i:s\Z')]);
 } catch (InvalidArgumentException|JsonException $e) {
     if (isset($db) && $db->inTransaction()) $db->rollBack();reply(['error'=>$e->getMessage()],422);
 } catch (Throwable $e) {

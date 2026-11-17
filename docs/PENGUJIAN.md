@@ -24,3 +24,5 @@ Sebelum acara: buka situs HTTPS dari enam tablet, impor contoh CSV di Admin, tet
 
 
 Pembaruan multi-acara: uji integrasi browser juga lulus pada MySQL 8.0.46 dan MariaDB 10.11.19 untuk pembuatan/pemilihan acara, tanggal tidak valid, kode acara duplikat, kode tamu sama pada dua acara dengan identitas berbeda, isolasi scan/rekap/CSV, QR beda acara ditolak, pilihan tetap setelah reload, dan respons jaringan acara lama tidak menimpa tampilan acara baru. Tata letak diperiksa di lebar 390, 1024, dan 1280 piksel. Animasi scan/konfirmasi menghormati prefers-reduced-motion. Migrasi 06 dijalankan ulang pada data yang sudah ada tanpa mengubah jumlah kehadiran.
+
+Filter kehadiran Admin: `tests/attendance-filters.mjs` lulus pada MySQL 8.0.46 dan MariaDB 10.11.19. Diuji semua/sudah/belum datang, pencarian nama/perusahaan/jabatan/kode/tablet, CSV sesuai filter/pencarian, kode duplikat lintas tablet satu baris, waktu kosong untuk belum datang, ringkasan seluruh acara, isolasi acara, perpindahan tamu dari belum ke sudah setelah check-in, penolakan parameter tidak valid, respons filter tertunda dan lebar ponsel 390 piksel.
