@@ -1,6 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id),page=document.body.dataset.page;
 let selected=null,stream=null,frame=null,starting=false,scanSession=0,arrivals=[],searchVersion=0,inviteVersion=0,activeEvent='',events=[],eventVersion=0;
+let attendanceFilter='present',listingVersion=0,searchTimer;
 const notify=message=>{$('notice').textContent=message;};
 const handle=fn=>async e=>{try{await fn(e);}catch(err){notify(err.message||'Operasi gagal.');}};
 function on(id,event,fn){$(id)?.addEventListener(event,handle(fn));}
@@ -70,31 +71,36 @@ async function showQR(code){
   const qr=window.qrcode(0,'M');qr.addData(result.url);qr.make();const n=qr.getModuleCount(),c=element('canvas',undefined,'qr');c.width=c.height=(n+8)*6;const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#000';for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(qr.isDark(y,x))ctx.fillRect((x+4)*6,(y+4)*6,6,6);
   const a=element('a',result.url);a.href=result.url;const save=element('button','Simpan QR PNG');save.addEventListener('click',()=>{const d=element('a');d.href=c.toDataURL('image/png');d.download=`undangan-${code}.png`;d.click();});box.append(c,save,a);
 }
-function renderArrivals(){
-  const query=$('arrival-search').value.trim().toLocaleLowerCase('id'),rows=arrivals.filter(x=>[x.nama,x.perusahaan,x.jabatan,x.kode,x.tablet].some(s=>s.toLocaleLowerCase('id').includes(query)));const fragment=document.createDocumentFragment();
-  for(const guest of rows){const tr=element('tr');for(const value of [guest.nama,[guest.perusahaan,guest.jabatan].filter(Boolean).join(' / '),guest.kode,guest.tablet,time(guest.pertama_utc)])tr.append(element('td',value));fragment.append(tr);}
-  if(!rows.length){const tr=element('tr'),td=element('td','Belum ada tamu yang cocok / datang.');td.colSpan=5;tr.append(td);fragment.append(tr);}$('arrivals').replaceChildren(fragment);
+function renderArrivals(loading=false){
+  const fragment=document.createDocumentFragment();
+  for(const guest of arrivals){const tr=element('tr');for(const value of [guest.nama,[guest.perusahaan,guest.jabatan].filter(Boolean).join(' / '),guest.kode,guest.status,guest.tablet||'—',guest.pertama_utc?time(guest.pertama_utc):'—'])tr.append(element('td',value));fragment.append(tr);}
+  if(!arrivals.length){const tr=element('tr'),td=element('td',loading?'Memuat daftar…':'Tidak ada undangan yang cocok dengan filter dan pencarian.');td.colSpan=6;tr.append(td);fragment.append(tr);}$('arrivals').replaceChildren(fragment);
+  const label={all:'Semua Undangan',present:'Sudah Datang',absent:'Belum Datang'}[attendanceFilter];
+  $('list-summary').textContent=loading?'Memuat daftar…':`${arrivals.length} undangan ditampilkan · ${label}`;
 }
+function updateExport(){if(page==='admin')$('export').href=document.body.dataset.base+'/api.php?'+new URLSearchParams({action:'export',event:activeEvent,filter:attendanceFilter,q:$('arrival-search').value.trim()});}
+function changeListing(){listingVersion++;arrivals=[];renderArrivals(true);updateExport();}
 let refreshingEvent=null;
-async function refresh(){if(!activeEvent||refreshingEvent===activeEvent)return;const version=eventVersion,event=activeEvent;refreshingEvent=event;try{
-  const data=await api('status');if(version!==eventVersion)return;$('connection').textContent='Terhubung ke server';
-  if(page==='admin'){$('total').textContent=data.total;$('present').textContent=data.present;$('remaining').textContent=data.total-data.present;const percent=data.total?Math.round(100*data.present/data.total):0;$('attendance-percent').textContent=percent+'%';$('attendance-progress').value=percent;$('attendance-progress').textContent=percent+'%';$('tablet-counts').replaceChildren();for(let i=1;i<=6;i++){const id='T0'+i,div=element('div',id);div.append(element('strong',data.tablets[id]||0));$('tablet-counts').append(div);}arrivals=data.arrivals;renderArrivals();$('updated').textContent=`Terakhir diperbarui ${new Date().toLocaleTimeString('id-ID')} · otomatis setiap 3 detik`;}
+async function refresh(){if(!activeEvent||refreshingEvent===JSON.stringify([activeEvent,attendanceFilter,$('arrival-search')?.value.trim()||'']))return;const version=eventVersion,listVersion=listingVersion,event=JSON.stringify([activeEvent,attendanceFilter,$('arrival-search')?.value.trim()||'']);refreshingEvent=event;try{
+  const data=await api('status',page==='admin'?{filter:attendanceFilter,q:$('arrival-search').value.trim()}:{});if(version!==eventVersion||listVersion!==listingVersion)return;$('connection').textContent='Terhubung ke server';
+  if(page==='admin'){$('total').textContent=data.total;$('present').textContent=data.present;$('remaining').textContent=data.total-data.present;const percent=data.total?Math.round(100*data.present/data.total):0;$('attendance-percent').textContent=percent+'%';$('attendance-progress').value=percent;$('attendance-progress').textContent=percent+'%';$('tablet-counts').replaceChildren();for(let i=1;i<=6;i++){const id='T0'+i,div=element('div',id);div.append(element('strong',data.tablets[id]||0));$('tablet-counts').append(div);}arrivals=data.guests;renderArrivals();$('updated').textContent=`Terakhir diperbarui ${new Date().toLocaleTimeString('id-ID')} · otomatis setiap 3 detik`;}
   else $('tablet-status').textContent=`${data.total} undangan tersedia dari Admin. Acara ${data.event}.`;
-}catch(err){if(version!==eventVersion)return;$('connection').textContent='Server belum terhubung';if(page==='admin')$('updated').textContent='Data belum diperbarui. '+err.message;else notify(err.message);}finally{if(refreshingEvent===event)refreshingEvent=null;}}
+}catch(err){if(version!==eventVersion||listVersion!==listingVersion)return;$('connection').textContent='Server belum terhubung';if(page==='admin')$('list-summary').textContent='Daftar belum dapat diperbarui.';if(page==='admin')$('updated').textContent='Data belum diperbarui. '+err.message;else notify(err.message);}finally{if(refreshingEvent===event)refreshingEvent=null;}}
 on('tablet','change',()=>{stopCamera();searchVersion++;reset();localStorage.setItem('rsas-tablet',$('tablet').value);});
 on('start','click',startCamera);on('stop','click',()=>{stopCamera();$('camera-status').textContent='Kamera dihentikan.';});
 on('cancel','click',()=>{searchVersion++;reset();});on('search','input',()=>search('search','results'));
 on('confirm','click',async e=>{if(!selected)return;const guest=selected,station=tablet();if(guest.event!==activeEvent)throw Error('Acara berubah. Pindai ulang undangan.');e.target.disabled=true;$('event-select').disabled=true;try{const result=await api('checkin',{}, {code:guest.kode,tablet:station});if(guest.event!==activeEvent)return;$('saved').textContent=`${guest.nama} · ${station}. ${result.message}`;notify('');reset();await refresh();}finally{e.target.disabled=false;$('event-select').disabled=false;}});
-on('arrival-search','input',renderArrivals);on('refresh','click',refresh);on('invite-search','input',()=>search('invite-search','invite-results',true));
+on('arrival-search','input',()=>{clearTimeout(searchTimer);changeListing();searchTimer=setTimeout(()=>refresh(),250);});
+document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{clearTimeout(searchTimer);attendanceFilter=button.dataset.filter;document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));changeListing();refresh();}));on('refresh','click',refresh);on('invite-search','input',()=>search('invite-search','invite-results',true));
 on('import','click',async e=>{const file=$('csv').files[0];if(!file||file.size>5*1024*1024)throw Error('Pilih CSV maksimal 5 MB.');const version=eventVersion;e.target.disabled=true;$('event-select').disabled=true;try{const form=new FormData();form.append('csv',file);const result=await api('import',{},form);if(version!==eventVersion)return;notify(result.message);$('csv').value='';await refresh();}finally{e.target.disabled=false;$('event-select').disabled=false;}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCamera();else refresh();});window.addEventListener('pagehide',stopCamera);
 // Retire the previous offline-only shell; shared attendance requires a server connection.
 if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(async regs=>{for(const reg of regs)if(reg.scope===location.origin+'/')await reg.unregister();}).catch(()=>{});
 if('caches' in window)caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('rsas-')).map(k=>caches.delete(k)))).catch(()=>{});
 async function chooseEvent(){
-  activeEvent=$('event-select').value;eventVersion++;searchVersion++;inviteVersion++;
+  clearTimeout(searchTimer);activeEvent=$('event-select').value;eventVersion++;listingVersion++;searchVersion++;inviteVersion++;
   notify('');if(page==='scan'){stopCamera();reset();$('saved').textContent='';$('search').value='';$('results').replaceChildren();$('tablet-status').textContent='Memuat daftar acara…';}
-  if(page==='admin'){arrivals=[];renderArrivals();$('invite-search').value='';$('invite-results').replaceChildren();$('invitation').replaceChildren();$('csv').value='';for(const id of ['total','present','remaining'])$(id).textContent='—';$('tablet-counts').replaceChildren();$('updated').textContent='Memuat kehadiran acara…';$('attendance-progress').value=0;$('attendance-percent').textContent='—';$('export').href=document.body.dataset.base+'/api.php?'+new URLSearchParams({action:'export',event:activeEvent});}
+  if(page==='admin'){arrivals=[];$('arrival-search').value='';renderArrivals(true);$('invite-search').value='';$('invite-results').replaceChildren();$('invitation').replaceChildren();$('csv').value='';for(const id of ['total','present','remaining'])$(id).textContent='—';$('tablet-counts').replaceChildren();$('updated').textContent='Memuat kehadiran acara…';$('attendance-progress').value=0;$('attendance-percent').textContent='—';updateExport();}
   const meta=events.find(e=>e.kode===activeEvent);
   $('event-detail').textContent=meta?[meta.tanggal?new Date(meta.tanggal+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'Tanggal belum ditentukan',meta.lokasi,meta.kode].filter(Boolean).join(' · '):'Pilih acara.';
   try{localStorage.setItem('rsas-event',activeEvent);}catch{}
