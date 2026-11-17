@@ -50,3 +50,10 @@ Nama, perusahaan dan jabatan dapat dikoreksi; kode/QR serta absensi tetap sama.
 Untuk tamu belum hadir, gunakan filter Belum Datang atau Semua Undangan.
 Jika ada pesan perubahan dari perangkat lain, tutup dan buka ulang formulir.
 Tidak perlu impor ulang SQL untuk memperbarui instalasi yang sudah ada.
+
+PRATINJAU CSV: pilih acara dan CSV, tekan Periksa & Pratinjau CSV.
+Periksa jumlah baru/sudah ada/bermasalah dan kesalahan per baris. Perbaiki semua
+kesalahan, periksa ulang, lalu tekan Konfirmasi Impor. Pratinjau tidak menyimpan
+data. Mengganti berkas/acara atau Batalkan mengharuskan pemeriksaan ulang.
+Server memeriksa ulang sebelum menyimpan; data identik tidak digandakan dan
+konflik membatalkan seluruh impor. Cukup unggah kode terbaru; SQL tetap sama.

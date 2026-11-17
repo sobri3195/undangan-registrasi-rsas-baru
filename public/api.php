@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/lib/bootstrap.php';
+require __DIR__.'/lib/csv_import.php';
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 header('Content-Type: application/json; charset=utf-8');
 function reply(array $data,int $status=200): never { http_response_code($status); echo json_encode($data,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR); exit; }
@@ -11,8 +12,8 @@ function guest(PDO $db,string $event,string $code): array {
 }
 try {
     $action=$_GET['action']??'';
-    if (!is_string($action)||!in_array($action,['events','create_event','update_guest','status','search','lookup','invitation','import','checkin','export'],true)) reply(['error'=>'Rute tidak ditemukan.'],404);
-    $write=in_array($action,['import','checkin','create_event','update_guest'],true);
+    if (!is_string($action)||!in_array($action,['events','create_event','update_guest','status','search','lookup','invitation','preview_import','import','checkin','export'],true)) reply(['error'=>'Rute tidak ditemukan.'],404);
+    $write=in_array($action,['preview_import','import','checkin','create_event','update_guest'],true);
     if ($_SERVER['REQUEST_METHOD']!==($write?'POST':'GET')) { header('Allow: '.($write?'POST':'GET'));reply(['error'=>'Metode tidak diizinkan.'],405); }
     if ($write) csrf();
     // Release the session lock before DB work: polling must not block check-in.
@@ -68,42 +69,20 @@ try {
         $q->execute([$values['nama'],$values['perusahaan'],$values['jabatan'],$event,$c]);
         $db->commit();reply(['message'=>'Identitas tamu berhasil diperbarui. QR undangan tetap dapat digunakan.']);
     }
-    if ($action==='import') {
-        $f=$_FILES['csv']??null;
-        if (!$f || $f['error']!==UPLOAD_ERR_OK || $f['size']>5*1024*1024) throw new InvalidArgumentException('Pilih CSV maksimal 5 MB; periksa batas unggah PHP.');
-        $file=fopen($f['tmp_name'],'r');
-        $headers=fgetcsv($file,0,',','"','');
-        if (!$headers) throw new InvalidArgumentException('CSV kosong.');
-        $headers[0]=preg_replace('/^\xEF\xBB\xBF/','',$headers[0]);
-        $simple=['kode','nama','perusahaan','jabatan'];
-        $legacy=['event','code','name','company','position','category','token'];
-        if ($headers!==$simple && $headers!==$legacy) throw new InvalidArgumentException('Header CSV harus: kode,nama,perusahaan,jabatan');
-        $rows=[];$seen=[];
-        while (($row=fgetcsv($file,0,',','"',''))!==false) {
-            if ($row===[null]) continue;
-            if (count($row)!==count($headers)) throw new InvalidArgumentException('Jumlah kolom CSV tidak sesuai.');
-            $r=array_combine($headers,$row);
-            if ($headers===$legacy && $r['event']!==$event) throw new InvalidArgumentException('Event CSV berbeda dengan acara yang dipilih.');
-            $c=code(trim($r['kode']??$r['code']));
-            if (isset($seen[$c])) throw new InvalidArgumentException('Kode duplikat dalam CSV: '.$c);
-            $seen[$c]=true;
-            $name=field($r['nama']??$r['name']);
-            if ($name==='') throw new InvalidArgumentException('Nama wajib diisi.');
-            $token=trim($r['token']??'');
-            if ($token!=='' && !preg_match('/\A[a-f0-9]{32,64}\z/',$token)) throw new InvalidArgumentException('Token QR CSV lama tidak valid.');
-            $rows[]=[$c,$name,field($r['perusahaan']??$r['company']),field($r['jabatan']??$r['position']),$token];
-            if (count($rows)>10000) throw new InvalidArgumentException('Maksimal 10.000 undangan.');
+    if ($action==='preview_import' || $action==='import') {
+        $source=uploaded_csv();
+        if ($action==='import') $db->beginTransaction();
+        $analysis=analyze_csv($db,$event,$source,$action==='import');
+        if ($action==='preview_import') {
+            unset($analysis['rows']);reply($analysis+['event'=>$event,'event_name'=>$eventData['nama']]);
         }
-        fclose($file);
-        if (!$rows) throw new InvalidArgumentException('CSV tidak berisi tamu.');
-        $db->beginTransaction();
-        $find=$db->prepare('SELECT nama,perusahaan,jabatan,token FROM scan_tamu WHERE acara=? AND kode=? FOR UPDATE');
+        if (!$analysis['can_import']) {
+            $db->rollBack();unset($analysis['rows']);
+            reply($analysis+['error'=>'Impor dibatalkan. Periksa ulang pratinjau dan perbaiki baris bermasalah.'],422);
+        }
         $insert=$db->prepare('INSERT INTO scan_tamu(acara,kode,nama,perusahaan,jabatan,token) VALUES (?,?,?,?,?,?)');$added=0;
-        foreach ($rows as [$c,$name,$company,$position,$token]) {
-            $find->execute([$event,$c]);$old=$find->fetch();
-            if ($old) {
-                if ($old['nama']!==$name || $old['perusahaan']!==$company || $old['jabatan']!==$position || ($token!=='' && !hash_equals($old['token'],$token))) throw new InvalidArgumentException('Kode '.$c.' sudah ada dengan data berbeda. Impor dibatalkan.');
-            } else { $insert->execute([$event,$c,$name,$company,$position,$token?:bin2hex(random_bytes(24))]);$added++; }
+        foreach ($analysis['rows'] as $row) if ($row['kind']==='new') {
+            $insert->execute([$event,$row['code'],$row['name'],$row['company'],$row['position'],$row['token']?:bin2hex(random_bytes(24))]);$added++;
         }
         $db->commit();reply(['added'=>$added,'message'=>"$added tamu baru disimpan. Daftar langsung tersedia di T01–T06."]);
     }

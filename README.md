@@ -83,3 +83,13 @@ Nama wajib diisi; setiap kolom maksimal 200 karakter. Jika operator lain sudah m
 Setelah mengoreksi identitas, sesuaikan CSV master panitia juga. CSV lama dengan identitas berbeda tetap ditolak saat impor agar tidak mengembalikan koreksi secara diam-diam.
 
 Saat memperbarui hosting yang sudah terpasang, pertahankan `private/database.php` yang berisi konfigurasi Anda. Unggah berkas aplikasi yang berubah; tidak perlu mengimpor ulang SQL dummy.
+
+## Pratinjau CSV sebelum impor
+
+Di Admin, pilih acara dan berkas CSV, lalu tekan **Periksa & Pratinjau CSV**. Pratinjau menampilkan jumlah baris, undangan baru, data yang sudah ada dan identik, serta baris bermasalah. Maksimal 20 contoh baris dan 50 rincian kesalahan ditampilkan agar halaman tetap ringan; total kesalahan tetap dihitung seluruhnya. Nomor kesalahan mengikuti baris fisik berkas, termasuk jika sel berkutip mengandung baris baru.
+
+Pemeriksaan tidak mengubah database atau membuat token QR. Setelah semua kesalahan diperbaiki, tekan **Konfirmasi Impor**. Server memvalidasi ulang berkas dan membandingkan dengan data terbaru dalam transaksi; bila ada satu konflik, seluruh impor dibatalkan. Data yang sudah identik dilewati dan token lamanya dipertahankan. Bila identitas berbeda, perbaiki melalui Edit atau perbaiki CSV, bukan menimpa data dengan impor.
+
+Mengganti berkas, mengganti acara, atau menekan Batalkan membatalkan pratinjau. Jika koneksi gagal saat konfirmasi, periksa ulang CSV; impor ulang data identik tidak menggandakan undangan. Format tetap UTF-8 (BOM boleh), pemisah koma, maksimal 5 MB/10.000 undangan. Kutip ganda dalam sel berkutip ditulis dua kali. Header salah, kutip rusak, dan berkas tanpa undangan ditolak. Pembaruan ini tidak memerlukan perubahan database.
+
+Uji khusus pada database demo terpisah: `PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8104 node tests/csv-preview.mjs`. Uji tersebut mengubah data sintetis; jangan jalankan pada produksi.

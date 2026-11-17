@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id),page=document.body.dataset.page;
 let selected=null,stream=null,frame=null,starting=false,scanSession=0,arrivals=[],searchVersion=0,inviteVersion=0,activeEvent='',events=[],eventVersion=0;
-let attendanceFilter='present',listingVersion=0,searchTimer,editingGuest=null,editVersion=0;
+let attendanceFilter='present',listingVersion=0,searchTimer,editingGuest=null,editVersion=0,importPreview=null,previewVersion=0;
 const notify=message=>{$('notice').textContent=message;};
 const handle=fn=>async e=>{try{await fn(e);}catch(err){notify(err.message||'Operasi gagal.');}};
 function on(id,event,fn){$(id)?.addEventListener(event,handle(fn));}
@@ -92,7 +92,31 @@ on('cancel','click',()=>{searchVersion++;reset();});on('search','input',()=>sear
 on('confirm','click',async e=>{if(!selected)return;const guest=selected,station=tablet();if(guest.event!==activeEvent)throw Error('Acara berubah. Pindai ulang undangan.');e.target.disabled=true;$('event-select').disabled=true;try{const result=await api('checkin',{}, {code:guest.kode,tablet:station});if(guest.event!==activeEvent)return;$('saved').textContent=`${guest.nama} · ${station}. ${result.message}`;notify('');reset();await refresh();}finally{e.target.disabled=false;$('event-select').disabled=false;}});
 on('arrival-search','input',()=>{clearTimeout(searchTimer);changeListing();searchTimer=setTimeout(()=>refresh(),250);});
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{clearTimeout(searchTimer);attendanceFilter=button.dataset.filter;document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));changeListing();refresh();}));on('refresh','click',refresh);on('invite-search','input',()=>search('invite-search','invite-results',true));
-on('import','click',async e=>{const file=$('csv').files[0];if(!file||file.size>5*1024*1024)throw Error('Pilih CSV maksimal 5 MB.');const version=eventVersion;e.target.disabled=true;$('event-select').disabled=true;try{const form=new FormData();form.append('csv',file);const result=await api('import',{},form);if(version!==eventVersion)return;notify(result.message);$('csv').value='';await refresh();}finally{e.target.disabled=false;$('event-select').disabled=false;}});
+function clearImportPreview(){previewVersion++;importPreview=null;if($('csv-preview')){$('csv-preview').hidden=true;$('confirm-import').disabled=true;$('preview-errors').replaceChildren();$('preview-rows').replaceChildren();}}
+function renderImportPreview(result,file){
+  const summary=result.summary;importPreview={file,event:activeEvent};
+  $('preview-target').textContent=`Acara tujuan: ${result.event_name} (${result.event}) · ${file.name}`;
+  $('preview-summary').textContent=`${summary.total} baris · ${summary.new} baru · ${summary.existing} sudah ada dan identik · ${summary.invalid} bermasalah`;
+  $('preview-errors').replaceChildren();for(const error of result.errors)$('preview-errors').append(element('p',`Baris ${error.line}${error.code?' ('+error.code+')':''}: ${error.message}`));
+  if(result.errors_truncated)$('preview-errors').append(element('p','Hanya 50 kesalahan pertama ditampilkan. Perbaiki CSV lalu periksa kembali.'));
+  $('preview-rows').replaceChildren();for(const row of result.sample){const tr=element('tr');for(const value of [row.line,row.code,row.name,[row.company,row.position].filter(Boolean).join(' / '),{new:'Baru',existing:'Sudah ada',invalid:'Bermasalah'}[row.kind]])tr.append(element('td',String(value)));$('preview-rows').append(tr);}
+  $('confirm-import').disabled=!result.can_import;$('csv-preview').hidden=false;
+}
+on('csv','change',()=>{clearImportPreview();});
+on('cancel-import','click',()=>{clearImportPreview();$('csv').value='';notify('Pratinjau dibatalkan. Data tidak diimpor.');});
+on('import','click',async e=>{
+  const file=$('csv').files[0];clearImportPreview();if(!file||file.size>5*1024*1024)throw Error('Pilih CSV maksimal 5 MB.');
+  const version=eventVersion,preview=previewVersion;e.target.disabled=true;$('event-select').disabled=true;
+  try{const form=new FormData();form.append('csv',file);const result=await api('preview_import',{},form);if(version!==eventVersion||preview!==previewVersion)return;renderImportPreview(result,file);notify(result.can_import?'Pratinjau siap. Periksa acara dan data, lalu tekan Konfirmasi Impor.':'Ada baris bermasalah. Perbaiki CSV lalu jalankan pratinjau ulang.');}
+  finally{e.target.disabled=false;$('event-select').disabled=false;}
+});
+on('confirm-import','click',async e=>{
+  const context=importPreview;if(!context||context.event!==activeEvent||$('csv').files[0]!==context.file)throw Error('Berkas atau acara berubah. Jalankan pratinjau ulang.');
+  const version=eventVersion;e.target.disabled=true;$('event-select').disabled=true;$('csv').disabled=true;$('cancel-import').disabled=true;$('import').disabled=true;
+  try{const form=new FormData();form.append('csv',context.file);const result=await api('import',{event:context.event},form);if(version!==eventVersion)return;clearImportPreview();$('csv').value='';listingVersion++;await refresh();notify(result.message);}
+  catch(err){clearImportPreview();notify(err.message+' Jalankan pratinjau kembali sebelum mencoba impor.');}
+  finally{$('event-select').disabled=false;$('csv').disabled=false;$('cancel-import').disabled=false;$('import').disabled=false;}
+});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCamera();else refresh();});window.addEventListener('pagehide',stopCamera);
 // Retire the previous offline-only shell; shared attendance requires a server connection.
 if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(async regs=>{for(const reg of regs)if(reg.scope===location.origin+'/')await reg.unregister();}).catch(()=>{});
@@ -124,7 +148,7 @@ on('guest-form','submit',async e=>{
   finally{$('save-guest').disabled=false;$('close-guest').disabled=false;$('event-select').disabled=false;}
 });
 async function chooseEvent(){
-  if(page==='admin'){$('guest-dialog').close();editingGuest=null;editVersion++;}clearTimeout(searchTimer);activeEvent=$('event-select').value;eventVersion++;listingVersion++;searchVersion++;inviteVersion++;
+  if(page==='admin'){clearImportPreview();$('guest-dialog').close();editingGuest=null;editVersion++;}clearTimeout(searchTimer);activeEvent=$('event-select').value;eventVersion++;listingVersion++;searchVersion++;inviteVersion++;
   notify('');if(page==='scan'){stopCamera();reset();$('saved').textContent='';$('search').value='';$('results').replaceChildren();$('tablet-status').textContent='Memuat daftar acara…';}
   if(page==='admin'){arrivals=[];$('arrival-search').value='';renderArrivals(true);$('invite-search').value='';$('invite-results').replaceChildren();$('invitation').replaceChildren();$('csv').value='';for(const id of ['total','present','remaining'])$(id).textContent='—';$('tablet-counts').replaceChildren();$('updated').textContent='Memuat kehadiran acara…';$('attendance-progress').value=0;$('attendance-percent').textContent='—';updateExport();}
   const meta=events.find(e=>e.kode===activeEvent);

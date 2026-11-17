@@ -15,7 +15,7 @@ try {
  assert.equal((await admin.request.get(origin+'/api.php?event=RSAS-2026&action=checkin')).status(),405);
  assert.equal((await admin.request.post(origin+'/api.php?event=RSAS-2026&action=checkin',{data:{code:'PT001',tablet:'T01'}})).status(),422);
  await admin.locator('#csv').setInputFiles({name:'list.csv',mimeType:'text/csv',buffer:await readFile(new URL('../public/template.csv',import.meta.url))});
- await admin.locator('#import').click();await admin.waitForFunction(()=>document.getElementById('total').textContent==='4');
+ await admin.locator('#import').click();await admin.locator('#confirm-import').waitFor({state:'visible'});await admin.locator('#confirm-import').click();await admin.waitForFunction(()=>document.getElementById('total').textContent==='4');
  const csrf=await admin.locator('meta[name=csrf]').getAttribute('content');
  const before=(await (await admin.request.get(origin+'/api.php?event=RSAS-2026&action=status')).json()).total;
  const invalid=await admin.request.post(origin+'/api.php?event=RSAS-2026&action=import',{headers:{'X-CSRF-Token':csrf},multipart:{csv:{name:'bad.csv',mimeType:'text/csv',buffer:Buffer.from('kode,nama,perusahaan,jabatan\nPT001,Conflict,PT,Job\nNEW001,New,PT,Job\n')}}});assert.equal(invalid.status(),422);
@@ -56,7 +56,7 @@ try {
  await admin.locator('#new-event').click();await admin.locator('#event-name').fill('Temu Mitra RSAU 2027');await admin.locator('#event-code').fill('MITRA-2027');await admin.locator('#event-date').fill('2027-02-20');await admin.locator('#event-location').fill('Aula RSAU');await admin.locator('#save-event').click();
  await admin.waitForFunction(()=>document.getElementById('event-select').value==='MITRA-2027'&&document.getElementById('total').textContent==='0');
  assert.equal(await tablets[0].locator('#event-select').inputValue(),'RSAS-2026');
- await admin.locator('#csv').setInputFiles({name:'event-b.csv',mimeType:'text/csv',buffer:Buffer.from('kode,nama,perusahaan,jabatan\nPT001,Tamu Acara Kedua,PT Kedua,Direktur\n')});await admin.locator('#import').click();await admin.waitForFunction(()=>document.getElementById('total').textContent==='1');
+ await admin.locator('#csv').setInputFiles({name:'event-b.csv',mimeType:'text/csv',buffer:Buffer.from('kode,nama,perusahaan,jabatan\nPT001,Tamu Acara Kedua,PT Kedua,Direktur\n')});await admin.locator('#import').click();await admin.locator('#confirm-import').waitFor({state:'visible'});await admin.locator('#confirm-import').click();await admin.waitForFunction(()=>document.getElementById('total').textContent==='1');
  await tablets[0].reload();await tablets[0].waitForFunction(()=>document.getElementById('event-select').options.length===2);await tablets[0].selectOption('#event-select','MITRA-2027');
  assert.equal(await tablets[0].locator('#identity').isHidden(),true);
  await tablets[0].locator('details summary').click();await tablets[0].locator('#search').fill('PT001');await tablets[0].locator('#results button').click();await tablets[0].waitForFunction(()=>document.getElementById('guest-name').textContent==='Tamu Acara Kedua');await tablets[0].locator('#confirm').click();
