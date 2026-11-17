@@ -32,6 +32,11 @@ return [
 shutil.copyfile(repo / 'demo/shared-hosting.csv', web / 'demo-undangan.csv')
 shutil.copyfile(repo / 'docs/PASANG_PAKET_HOSTING.txt', web / 'PANDUAN.txt')
 shutil.copyfile(repo / 'sql/07_shared_hosting_dummy.sql', out / 'rsas_dummy.sql')
+# Normalize copied workspace modes for Apache/shared hosting (never use 777).
+web.chmod(0o755)
+for item in web.rglob('*'):
+    item.chmod(0o755 if item.is_dir() else 0o644)
+(out / 'rsas_dummy.sql').chmod(0o644)
 archive = out.with_suffix('.zip')
 if archive.exists():
     raise SystemExit('Arsip sudah ada; folder output baru telah dibuat tetapi arsip tidak ditimpa.')
