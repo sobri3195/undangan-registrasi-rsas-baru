@@ -44,3 +44,9 @@ FILTER ADMIN: pilih Semua Undangan, Sudah Datang, atau Belum Datang di atas
  tabel. Cari nama/perusahaan/jabatan/kode/tablet sesuai filter. Unduh CSV
  mengikuti filter dan pencarian, sedangkan ringkasan atas tetap seluruh acara.
  Pembaruan filter tidak memerlukan impor ulang SQL atau menghapus data lama.
+
+EDIT IDENTITAS: di Admin, klik Edit pada baris undangan atau hasil pencarian.
+Nama, perusahaan dan jabatan dapat dikoreksi; kode/QR serta absensi tetap sama.
+Untuk tamu belum hadir, gunakan filter Belum Datang atau Semua Undangan.
+Jika ada pesan perubahan dari perangkat lain, tutup dan buka ulang formulir.
+Tidak perlu impor ulang SQL untuk memperbarui instalasi yang sudah ada.

@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id),page=document.body.dataset.page;
 let selected=null,stream=null,frame=null,starting=false,scanSession=0,arrivals=[],searchVersion=0,inviteVersion=0,activeEvent='',events=[],eventVersion=0;
-let attendanceFilter='present',listingVersion=0,searchTimer;
+let attendanceFilter='present',listingVersion=0,searchTimer,editingGuest=null,editVersion=0;
 const notify=message=>{$('notice').textContent=message;};
 const handle=fn=>async e=>{try{await fn(e);}catch(err){notify(err.message||'Operasi gagal.');}};
 function on(id,event,fn){$(id)?.addEventListener(event,handle(fn));}
@@ -63,7 +63,7 @@ async function startCamera(){
 async function search(id,target,invites=false){
   const version=invites?++inviteVersion:++searchVersion,q=$(id).value.trim();$(target).replaceChildren();if(q.length<2)return;
   const data=await api('search',{q});if(version!==(invites?inviteVersion:searchVersion))return;
-  for(const guest of data.guests){const b=element('button',`${guest.nama} · ${guest.perusahaan} · ${guest.kode}`,'secondary');b.addEventListener('click',handle(()=>invites?showQR(guest.kode):lookup({code:guest.kode})));const row=element('div',undefined,'slot');row.append(b);$(target).append(row);}
+  for(const guest of data.guests){const b=element('button',`${guest.nama} · ${guest.perusahaan} · ${guest.kode}`,'secondary');b.addEventListener('click',handle(()=>invites?showQR(guest.kode):lookup({code:guest.kode})));const row=element('div',undefined,'slot');row.append(b);if(invites){const edit=element('button','Edit','secondary');edit.addEventListener('click',handle(()=>openGuestEditor(guest.kode)));row.append(edit);}$(target).append(row);}
   if(!data.guests.length)$(target).append(element('p','Tidak ada hasil.'));
 }
 async function showQR(code){
@@ -73,15 +73,15 @@ async function showQR(code){
 }
 function renderArrivals(loading=false){
   const fragment=document.createDocumentFragment();
-  for(const guest of arrivals){const tr=element('tr');for(const value of [guest.nama,[guest.perusahaan,guest.jabatan].filter(Boolean).join(' / '),guest.kode,guest.status,guest.tablet||'—',guest.pertama_utc?time(guest.pertama_utc):'—'])tr.append(element('td',value));fragment.append(tr);}
-  if(!arrivals.length){const tr=element('tr'),td=element('td',loading?'Memuat daftar…':'Tidak ada undangan yang cocok dengan filter dan pencarian.');td.colSpan=6;tr.append(td);fragment.append(tr);}$('arrivals').replaceChildren(fragment);
+  for(const guest of arrivals){const tr=element('tr');for(const value of [guest.nama,[guest.perusahaan,guest.jabatan].filter(Boolean).join(' / '),guest.kode,guest.status,guest.tablet||'—',guest.pertama_utc?time(guest.pertama_utc):'—'])tr.append(element('td',value));const actions=element('td'),edit=element('button','Edit','secondary edit-guest');edit.setAttribute('aria-label','Edit identitas '+guest.nama);edit.addEventListener('click',handle(()=>openGuestEditor(guest.kode)));actions.append(edit);tr.append(actions);fragment.append(tr);}
+  if(!arrivals.length){const tr=element('tr'),td=element('td',loading?'Memuat daftar…':'Tidak ada undangan yang cocok dengan filter dan pencarian.');td.colSpan=7;tr.append(td);fragment.append(tr);}$('arrivals').replaceChildren(fragment);
   const label={all:'Semua Undangan',present:'Sudah Datang',absent:'Belum Datang'}[attendanceFilter];
   $('list-summary').textContent=loading?'Memuat daftar…':`${arrivals.length} undangan ditampilkan · ${label}`;
 }
 function updateExport(){if(page==='admin')$('export').href=document.body.dataset.base+'/api.php?'+new URLSearchParams({action:'export',event:activeEvent,filter:attendanceFilter,q:$('arrival-search').value.trim()});}
 function changeListing(){listingVersion++;arrivals=[];renderArrivals(true);updateExport();}
 let refreshingEvent=null;
-async function refresh(){if(!activeEvent||refreshingEvent===JSON.stringify([activeEvent,attendanceFilter,$('arrival-search')?.value.trim()||'']))return;const version=eventVersion,listVersion=listingVersion,event=JSON.stringify([activeEvent,attendanceFilter,$('arrival-search')?.value.trim()||'']);refreshingEvent=event;try{
+async function refresh(){if(!activeEvent||refreshingEvent===JSON.stringify([activeEvent,attendanceFilter,$('arrival-search')?.value.trim()||'',listingVersion]))return;const version=eventVersion,listVersion=listingVersion,event=JSON.stringify([activeEvent,attendanceFilter,$('arrival-search')?.value.trim()||'',listingVersion]);refreshingEvent=event;try{
   const data=await api('status',page==='admin'?{filter:attendanceFilter,q:$('arrival-search').value.trim()}:{});if(version!==eventVersion||listVersion!==listingVersion)return;$('connection').textContent='Terhubung ke server';
   if(page==='admin'){$('total').textContent=data.total;$('present').textContent=data.present;$('remaining').textContent=data.total-data.present;const percent=data.total?Math.round(100*data.present/data.total):0;$('attendance-percent').textContent=percent+'%';$('attendance-progress').value=percent;$('attendance-progress').textContent=percent+'%';$('tablet-counts').replaceChildren();for(let i=1;i<=6;i++){const id='T0'+i,div=element('div',id);div.append(element('strong',data.tablets[id]||0));$('tablet-counts').append(div);}arrivals=data.guests;renderArrivals();$('updated').textContent=`Terakhir diperbarui ${new Date().toLocaleTimeString('id-ID')} · otomatis setiap 3 detik`;}
   else $('tablet-status').textContent=`${data.total} undangan tersedia dari Admin. Acara ${data.event}.`;
@@ -97,8 +97,34 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCamera(
 // Retire the previous offline-only shell; shared attendance requires a server connection.
 if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(async regs=>{for(const reg of regs)if(reg.scope===location.origin+'/')await reg.unregister();}).catch(()=>{});
 if('caches' in window)caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('rsas-')).map(k=>caches.delete(k)))).catch(()=>{});
+async function openGuestEditor(code){
+  const version=++editVersion,event=activeEvent;
+  const result=await api('lookup',{code});if(version!==editVersion||event!==activeEvent)return;
+  editingGuest={event,code,original:{nama:result.guest.nama,perusahaan:result.guest.perusahaan,jabatan:result.guest.jabatan}};
+  $('edit-context').textContent=`${event} / ${code}`;
+  $('edit-name').value=result.guest.nama;$('edit-company').value=result.guest.perusahaan;$('edit-position').value=result.guest.jabatan;
+  $('guest-error').textContent='';$('guest-dialog').showModal();$('edit-name').focus();
+}
+on('close-guest','click',()=>$('guest-dialog').close());
+$('guest-dialog')?.addEventListener('cancel',e=>{if($('save-guest').disabled)e.preventDefault();});
+$('guest-dialog')?.addEventListener('close',()=>{editingGuest=null;editVersion++;});
+on('guest-form','submit',async e=>{
+  e.preventDefault();const context=editingGuest;if(!context||context.event!==activeEvent)throw Error('Acara berubah. Buka ulang Edit.');
+  $('save-guest').disabled=true;$('close-guest').disabled=true;$('event-select').disabled=true;$('guest-error').textContent='';
+  try{
+    const data={...Object.fromEntries(new FormData(e.target)),kode:context.code,original:context.original};
+    const result=await api('update_guest',{event:context.event},data);
+    if(context.event!==activeEvent)return;
+    $('guest-dialog').close();editVersion++;listingVersion++;inviteVersion++;
+    // Clear QR captions/results so they do not show the identity from before this correction.
+    $('invitation').replaceChildren();$('invite-results').replaceChildren();
+    await refresh();if($('invite-search').value.trim().length>=2)await search('invite-search','invite-results',true);
+    notify(result.message);
+  }catch(err){$('guest-error').textContent=err.message;}
+  finally{$('save-guest').disabled=false;$('close-guest').disabled=false;$('event-select').disabled=false;}
+});
 async function chooseEvent(){
-  clearTimeout(searchTimer);activeEvent=$('event-select').value;eventVersion++;listingVersion++;searchVersion++;inviteVersion++;
+  if(page==='admin'){$('guest-dialog').close();editingGuest=null;editVersion++;}clearTimeout(searchTimer);activeEvent=$('event-select').value;eventVersion++;listingVersion++;searchVersion++;inviteVersion++;
   notify('');if(page==='scan'){stopCamera();reset();$('saved').textContent='';$('search').value='';$('results').replaceChildren();$('tablet-status').textContent='Memuat daftar acara…';}
   if(page==='admin'){arrivals=[];$('arrival-search').value='';renderArrivals(true);$('invite-search').value='';$('invite-results').replaceChildren();$('invitation').replaceChildren();$('csv').value='';for(const id of ['total','present','remaining'])$(id).textContent='—';$('tablet-counts').replaceChildren();$('updated').textContent='Memuat kehadiran acara…';$('attendance-progress').value=0;$('attendance-percent').textContent='—';updateExport();}
   const meta=events.find(e=>e.kode===activeEvent);

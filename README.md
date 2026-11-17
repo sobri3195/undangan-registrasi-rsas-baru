@@ -73,3 +73,13 @@ Impor `rsas_dummy.sql` ke database cPanel yang dipilih melalui phpMyAdmin; tidak
 Pilih **Semua Undangan**, **Sudah Datang** (pilihan awal), atau **Belum Datang** di atas tabel. Pencarian nama, perusahaan, jabatan, kode, dan tablet diterapkan pada filter terpilih. Tombol Unduh CSV memakai acara, filter, dan pencarian yang sama; berkas menyertakan kolom status. Tamu belum datang mempunyai waktu kedatangan kosong, bukan waktu buatan. Total undangan/hadir/belum hadir di bagian atas tetap merupakan ringkasan seluruh acara.
 
 Daftar mengikuti perubahan kehadiran setiap 3 detik. Kode yang tercatat beberapa tablet tetap satu baris. Pergantian acara membersihkan pencarian, mempertahankan filter, dan tidak menampilkan hasil respons acara/filter sebelumnya. Pembaruan ini tidak memerlukan perubahan database: cukup unggah berkas aplikasi terbaru. Uji khusus: `PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8098 node tests/attendance-filters.mjs` pada database uji baru yang diisi SQL dummy 07; uji mencatat satu kehadiran demo.
+
+## Edit identitas tamu
+
+Klik **Edit** pada tabel Admin (termasuk filter Semua/Belum Datang), atau cari kode pada bagian pencarian undangan lalu klik **Edit**. Formulir memperbaiki nama, perusahaan/instansi, dan jabatan pada slot acara terpilih. Kode undangan, token QR, waktu hadir dan tablet pencatat tetap dipertahankan. Identitas baru tampil di daftar, ekspor CSV dan hasil pemindaian/pencarian berikutnya. Ini untuk koreksi identitas, bukan memindahkan undangan kepada orang lain.
+
+Nama wajib diisi; setiap kolom maksimal 200 karakter. Jika operator lain sudah memperbarui identitas setelah formulir dibuka, penyimpanan ditolak dengan pesan konflik: tutup lalu buka ulang Edit untuk membaca data terbaru. Saat koneksi gagal, formulir tetap terbuka dan dapat dicoba lagi. Menyimpan ulang perubahan yang sama aman. Akses mengikuti Admin yang tersedia saat ini, tanpa login. Tidak diperlukan perubahan schema database.
+
+Setelah mengoreksi identitas, sesuaikan CSV master panitia juga. CSV lama dengan identitas berbeda tetap ditolak saat impor agar tidak mengembalikan koreksi secara diam-diam.
+
+Saat memperbarui hosting yang sudah terpasang, pertahankan `private/database.php` yang berisi konfigurasi Anda. Unggah berkas aplikasi yang berubah; tidak perlu mengimpor ulang SQL dummy.

@@ -14,3 +14,5 @@ label{display:block;font-size:13px;font-weight:600;margin:12px 0 6px}input,selec
 .stats p{font-size:11px;color:var(--muted);margin:8px 0 0}.stats .stat-present p{color:#b2cabe}.stat-label{font-size:12px}.stat-label span{float:right}
 
 .attendance-filters{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 10px}.attendance-filters button{background:#f7f9f5;color:var(--green);border:1px solid var(--line);font-size:12px;min-height:42px;padding:10px 15px}.attendance-filters button[aria-pressed=true]{background:var(--green);border-color:var(--green);color:white}#list-summary{min-height:20px;margin:6px 0 12px}td:nth-child(4){white-space:nowrap}@media(max-width:620px){.attendance-filters{gap:6px}.attendance-filters button{flex:1;padding:10px 8px;font-size:11px}}
+
+.edit-guest{font-size:11px;min-height:36px;padding:6px 12px}#guest-error{font-size:13px;color:#9d352c}#save-guest{width:100%;margin-top:12px}.qr-tools .slot{display:flex;gap:8px}.qr-tools .slot>button:first-child{flex:1}.qr-tools .slot>button:last-child:not(:first-child){width:auto;flex-shrink:0}
