@@ -1,0 +1,648 @@
+{
+  "event": "RSAS-20261119",
+  "date": "2026-11-19",
+  "time": "09:00",
+  "timezone": "Asia/Jakarta",
+  "slots": [
+    {
+      "nomor": 1,
+      "kelompok": "TNI AU",
+      "kode": "RSAS001",
+      "nama": "Paban V/Watpers Spersau",
+      "perusahaan": "Spersau",
+      "jabatan": "Paban V/Watpers Spersau"
+    },
+    {
+      "nomor": 2,
+      "kelompok": "TNI AU",
+      "kode": "RSAS002",
+      "nama": "Kapuskesau",
+      "perusahaan": "Puskesau",
+      "jabatan": "Kapuskesau"
+    },
+    {
+      "nomor": 3,
+      "kelompok": "TNI AU",
+      "kode": "RSAS003",
+      "nama": "Dirbinum",
+      "perusahaan": "Puskesau",
+      "jabatan": "Dirbinum"
+    },
+    {
+      "nomor": 4,
+      "kelompok": "TNI AU",
+      "kode": "RSAS004",
+      "nama": "Ka SPI",
+      "perusahaan": "Puskesau",
+      "jabatan": "Ka SPI"
+    },
+    {
+      "nomor": 5,
+      "kelompok": "TNI AU",
+      "kode": "RSAS005",
+      "nama": "Dirbinyankes",
+      "perusahaan": "Puskesau",
+      "jabatan": "Dirbinyankes"
+    },
+    {
+      "nomor": 6,
+      "kelompok": "TNI AU",
+      "kode": "RSAS006",
+      "nama": "Dirbinmatfaskes",
+      "perusahaan": "Puskesau",
+      "jabatan": "Dirbinmatfaskes"
+    },
+    {
+      "nomor": 7,
+      "kelompok": "TNI AU",
+      "kode": "RSAS007",
+      "nama": "Dirbinprofkes",
+      "perusahaan": "Puskesau",
+      "jabatan": "Dirbinprofkes"
+    },
+    {
+      "nomor": 8,
+      "kelompok": "TNI AU",
+      "kode": "RSAS008",
+      "nama": "Kasubdispenum",
+      "perusahaan": "Dispenau",
+      "jabatan": "Kasubdispenum"
+    },
+    {
+      "nomor": 9,
+      "kelompok": "TNI AU",
+      "kode": "RSAS009",
+      "nama": "Kasubdispenpas",
+      "perusahaan": "Dispenau",
+      "jabatan": "Kasubdispenpas"
+    },
+    {
+      "nomor": 10,
+      "kelompok": "TNI AU",
+      "kode": "RSAS010",
+      "nama": "Kasubdisbankum",
+      "perusahaan": "Diskumau",
+      "jabatan": "Kasubdisbankum"
+    },
+    {
+      "nomor": 11,
+      "kelompok": "TNI AU",
+      "kode": "RSAS011",
+      "nama": "Kalakespra dr. Saryanto",
+      "perusahaan": "LAKESPRA dr. Saryanto",
+      "jabatan": "Kalakespra dr. Saryanto"
+    },
+    {
+      "nomor": 12,
+      "kelompok": "TNI AU",
+      "kode": "RSAS012",
+      "nama": "Kadep Aeroklinik",
+      "perusahaan": "LAKESPRA dr. Saryanto",
+      "jabatan": "Kadep Aeroklinik"
+    },
+    {
+      "nomor": 13,
+      "kelompok": "TNI AU",
+      "kode": "RSAS013",
+      "nama": "Kalakesgilut drg. R. Poerwanto",
+      "perusahaan": "Lakesgilut drg. R. Poerwanto",
+      "jabatan": "Kalakesgilut drg. R. Poerwanto"
+    },
+    {
+      "nomor": 14,
+      "kelompok": "TNI AU",
+      "kode": "RSAS014",
+      "nama": "Ka RSGM",
+      "perusahaan": "RSGM",
+      "jabatan": "Ka RSGM"
+    },
+    {
+      "nomor": 15,
+      "kelompok": "TNI AU",
+      "kode": "RSAS015",
+      "nama": "Ka RSAU dr. Esnawan Antariksa",
+      "perusahaan": "RSAU dr. Esnawan Antariksa",
+      "jabatan": "Ka RSAU dr. Esnawan Antariksa"
+    },
+    {
+      "nomor": 16,
+      "kelompok": "TNI AU",
+      "kode": "RSAS016",
+      "nama": "Ka RSAU dr. Hasan Toto",
+      "perusahaan": "RSAU dr. Hasan Toto",
+      "jabatan": "Ka RSAU dr. Hasan Toto"
+    },
+    {
+      "nomor": 17,
+      "kelompok": "Kemhan",
+      "kode": "RSAS017",
+      "nama": "Dirkes Ditjenkuathan Kemhan",
+      "perusahaan": "Ditjenkuathan Kemhan",
+      "jabatan": "Dirkes Ditjenkuathan Kemhan"
+    },
+    {
+      "nomor": 18,
+      "kelompok": "Kemhan",
+      "kode": "RSAS018",
+      "nama": "Kasubditmatfaskes Ditkes Ditjenkuathan Kemhan",
+      "perusahaan": "Ditjenkuathan Kemhan",
+      "jabatan": "Kasubditmatfaskes Ditkes Ditjenkuathan Kemhan"
+    },
+    {
+      "nomor": 19,
+      "kelompok": "Kemhan",
+      "kode": "RSAS019",
+      "nama": "Kasubditnakes Ditkes Ditjenkuathan Kemhan",
+      "perusahaan": "Ditjenkuathan Kemhan",
+      "jabatan": "Kasubditnakes Ditkes Ditjenkuathan Kemhan"
+    },
+    {
+      "nomor": 20,
+      "kelompok": "Mabes TNI",
+      "kode": "RSAS020",
+      "nama": "Kapuskes TNI",
+      "perusahaan": "Puskes TNI",
+      "jabatan": "Kapuskes TNI"
+    },
+    {
+      "nomor": 21,
+      "kelompok": "Mabes TNI",
+      "kode": "RSAS021",
+      "nama": "Kabidyankesin Puskes TNI",
+      "perusahaan": "Puskes TNI",
+      "jabatan": "Kabidyankesin Puskes TNI"
+    },
+    {
+      "nomor": 22,
+      "kelompok": "Mabes TNI",
+      "kode": "RSAS022",
+      "nama": "Ka RS TNI Patria Puskes TNI",
+      "perusahaan": "RS TNI Patria Puskes TNI",
+      "jabatan": "Ka RS TNI Patria Puskes TNI"
+    },
+    {
+      "nomor": 23,
+      "kelompok": "Bais (BIN)",
+      "kode": "RSAS023",
+      "nama": "Kapusintelmed",
+      "perusahaan": "Bais (BIN)",
+      "jabatan": "Kapusintelmed"
+    },
+    {
+      "nomor": 24,
+      "kelompok": "TNI AD",
+      "kode": "RSAS024",
+      "nama": "Kapuskesad",
+      "perusahaan": "Puskesad",
+      "jabatan": "Kapuskesad"
+    },
+    {
+      "nomor": 25,
+      "kelompok": "TNI AD",
+      "kode": "RSAS025",
+      "nama": "Ka RSPAD",
+      "perusahaan": "RSPAD",
+      "jabatan": "Ka RSPAD"
+    },
+    {
+      "nomor": 26,
+      "kelompok": "TNI AD",
+      "kode": "RSAS026",
+      "nama": "Karumkit Pusdikkes Puskesad",
+      "perusahaan": "Pusdikkes Puskesad",
+      "jabatan": "Karumkit Pusdikkes Puskesad"
+    },
+    {
+      "nomor": 27,
+      "kelompok": "TNI AD",
+      "kode": "RSAS027",
+      "nama": "Karumkit dr. Ridwan Maureksa Puskesad",
+      "perusahaan": "Rumkit dr. Ridwan Maureksa Puskesad",
+      "jabatan": "Karumkit dr. Ridwan Maureksa Puskesad"
+    },
+    {
+      "nomor": 28,
+      "kelompok": "TNI AL",
+      "kode": "RSAS028",
+      "nama": "Kapuskesal",
+      "perusahaan": "Puskesal",
+      "jabatan": "Kapuskesal"
+    },
+    {
+      "nomor": 29,
+      "kelompok": "TNI AL",
+      "kode": "RSAS029",
+      "nama": "Karumkit Mar Cilandak",
+      "perusahaan": "Rumkit Mar Cilandak",
+      "jabatan": "Karumkit Mar Cilandak"
+    },
+    {
+      "nomor": 30,
+      "kelompok": "TNI AL",
+      "kode": "RSAS030",
+      "nama": "Ka RSAL dr. Mintohardjo Puskesal",
+      "perusahaan": "RSAL dr. Mintohardjo Puskesal",
+      "jabatan": "Ka RSAL dr. Mintohardjo Puskesal"
+    },
+    {
+      "nomor": 31,
+      "kelompok": "POLRI",
+      "kode": "RSAS031",
+      "nama": "Ka RS POLRI dr. Sukanto",
+      "perusahaan": "RS POLRI dr. Sukanto",
+      "jabatan": "Ka RS POLRI dr. Sukanto"
+    },
+    {
+      "nomor": 32,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS032",
+      "nama": "Dirut RSPI Sulianti Suroso",
+      "perusahaan": "RSPI Sulianti Suroso",
+      "jabatan": "Dirut RSPI Sulianti Suroso"
+    },
+    {
+      "nomor": 33,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS033",
+      "nama": "Asisten Kesejahteraan Rakyat Provinsi DKI Jakarta",
+      "perusahaan": "Pemerintah Provinsi DKI Jakarta",
+      "jabatan": "Asisten Kesejahteraan Rakyat Provinsi DKI Jakarta"
+    },
+    {
+      "nomor": 34,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS034",
+      "nama": "Kadinkes Provinsi DKI Jakarta",
+      "perusahaan": "Pemerintah Provinsi DKI Jakarta",
+      "jabatan": "Kadinkes Provinsi DKI Jakarta"
+    },
+    {
+      "nomor": 35,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS035",
+      "nama": "Wakil Ketua DPRD DKI Jakarta",
+      "perusahaan": "Pemerintah Provinsi DKI Jakarta",
+      "jabatan": "Wakil Ketua DPRD DKI Jakarta"
+    },
+    {
+      "nomor": 36,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS036",
+      "nama": "Ketua Komisi E Bidang Kesejahteraan Rakyat",
+      "perusahaan": "Pemerintah Provinsi DKI Jakarta",
+      "jabatan": "Ketua Komisi E Bidang Kesejahteraan Rakyat"
+    },
+    {
+      "nomor": 37,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS037",
+      "nama": "Sekretaris Kota Jakarta Selatan",
+      "perusahaan": "Pemerintah Kota Jakarta Selatan",
+      "jabatan": "Sekretaris Kota Jakarta Selatan"
+    },
+    {
+      "nomor": 38,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS038",
+      "nama": "Asisten Administrasi dan Kesejahteraan Rakyat Kota Jakarta Selatan",
+      "perusahaan": "Pemerintah Kota Jakarta Selatan",
+      "jabatan": "Asisten Administrasi dan Kesejahteraan Rakyat Kota Jakarta Selatan"
+    },
+    {
+      "nomor": 39,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS039",
+      "nama": "Kasubdinkes Kota Jakarta Selatan",
+      "perusahaan": "Pemerintah Kota Jakarta Selatan",
+      "jabatan": "Kasubdinkes Kota Jakarta Selatan"
+    },
+    {
+      "nomor": 40,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS040",
+      "nama": "Camat Kecamatan Pancoran",
+      "perusahaan": "Pemerintah Kota Jakarta Selatan",
+      "jabatan": "Camat Kecamatan Pancoran"
+    },
+    {
+      "nomor": 41,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS041",
+      "nama": "Lurah Kelurahan Pancoran",
+      "perusahaan": "Pemerintah Kota Jakarta Selatan",
+      "jabatan": "Lurah Kelurahan Pancoran"
+    },
+    {
+      "nomor": 42,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS042",
+      "nama": "Ka RSUD Tebet",
+      "perusahaan": "RSUD Tebet",
+      "jabatan": "Ka RSUD Tebet"
+    },
+    {
+      "nomor": 43,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS043",
+      "nama": "Ka RSUD Mampang Prapatan",
+      "perusahaan": "RSUD Mampang Prapatan",
+      "jabatan": "Ka RSUD Mampang Prapatan"
+    },
+    {
+      "nomor": 44,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS044",
+      "nama": "Dirut RS Triadipa",
+      "perusahaan": "RS Triadipa",
+      "jabatan": "Dirut RS Triadipa"
+    },
+    {
+      "nomor": 45,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS045",
+      "nama": "Dirut RS Medistra",
+      "perusahaan": "RS Medistra",
+      "jabatan": "Dirut RS Medistra"
+    },
+    {
+      "nomor": 46,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS046",
+      "nama": "Ka PKM Kelurahan Pancoran 2",
+      "perusahaan": "PKM Kelurahan Pancoran 2",
+      "jabatan": "Ka PKM Kelurahan Pancoran 2"
+    },
+    {
+      "nomor": 47,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS047",
+      "nama": "Ka PKM Kelurahan Kalibata 2",
+      "perusahaan": "PKM Kelurahan Kalibata 2",
+      "jabatan": "Ka PKM Kelurahan Kalibata 2"
+    },
+    {
+      "nomor": 48,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS048",
+      "nama": "Kacab BPJS Kesehatan Jakarta Selatan",
+      "perusahaan": "BPJS Kesehatan Jakarta Selatan",
+      "jabatan": "Kacab BPJS Kesehatan Jakarta Selatan"
+    },
+    {
+      "nomor": 49,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS049",
+      "nama": "Kacab BPJS Ketenagakerjaan Jakarta Selatan",
+      "perusahaan": "BPJS Ketenagakerjaan Jakarta Selatan",
+      "jabatan": "Kacab BPJS Ketenagakerjaan Jakarta Selatan"
+    },
+    {
+      "nomor": 50,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS050",
+      "nama": "Kacab BNI Kemendes",
+      "perusahaan": "BNI Kemendes",
+      "jabatan": "Kacab BNI Kemendes"
+    },
+    {
+      "nomor": 51,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS051",
+      "nama": "Kacab BRI Cilangkap",
+      "perusahaan": "BRI Cilangkap",
+      "jabatan": "Kacab BRI Cilangkap"
+    },
+    {
+      "nomor": 52,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS052",
+      "nama": "Pimcab BJB Hasyim Ashari",
+      "perusahaan": "BJB Hasyim Ashari",
+      "jabatan": "Pimcab BJB Hasyim Ashari"
+    },
+    {
+      "nomor": 53,
+      "kelompok": "Pemerintah, fasyankes, BPJS, perbankan",
+      "kode": "RSAS053",
+      "nama": "CEO Regional 2 BJB",
+      "perusahaan": "BJB Regional 2",
+      "jabatan": "CEO Regional 2 BJB"
+    },
+    {
+      "nomor": 54,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS054",
+      "nama": "Perwakilan PT Administrasi Medika (Ad Medika)",
+      "perusahaan": "PT Administrasi Medika (Ad Medika)",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 55,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS055",
+      "nama": "Perwakilan PT Zurich Asuransi Indonesia",
+      "perusahaan": "PT Zurich Asuransi Indonesia",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 56,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS056",
+      "nama": "Perwakilan PT MSIG Life Insurance Indonesia Tbk",
+      "perusahaan": "PT MSIG Life Insurance Indonesia Tbk",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 57,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS057",
+      "nama": "Perwakilan PT Teknologi Pamadya Analitika (Meditap)",
+      "perusahaan": "PT Teknologi Pamadya Analitika (Meditap)",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 58,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS058",
+      "nama": "Perwakilan PT International Services Pasific Cross",
+      "perusahaan": "PT International Services Pasific Cross",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 59,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS059",
+      "nama": "Perwakilan PT Medilink Digital Medika (Medilink)",
+      "perusahaan": "PT Medilink Digital Medika (Medilink)",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 60,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS060",
+      "nama": "Perwakilan PT Asabri",
+      "perusahaan": "PT Asabri",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 61,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS061",
+      "nama": "Perwakilan PT Asuransi Umum Mega",
+      "perusahaan": "PT Asuransi Umum Mega",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 62,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS062",
+      "nama": "Perwakilan PT Prudential",
+      "perusahaan": "PT Prudential",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 63,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS063",
+      "nama": "Perwakilan PT Jasindo",
+      "perusahaan": "PT Jasindo",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 64,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS064",
+      "nama": "Perwakilan Yayasan Kesejahteraan Pegawai PT Bank Pembangunan Daerah Jawa Barat dan Banten (YKP Bank BJB)",
+      "perusahaan": "Yayasan Kesejahteraan Pegawai PT Bank Pembangunan Daerah Jawa Barat dan Banten (YKP Bank BJB)",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 65,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS065",
+      "nama": "Perwakilan BRI Life Healthcare Operation",
+      "perusahaan": "BRI Life Healthcare Operation",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 66,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS066",
+      "nama": "Perwakilan BNI Life Healthcare",
+      "perusahaan": "BNI Life Healthcare",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 67,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS067",
+      "nama": "Perwakilan PT Korea Indonesia (Korindo) Abadi",
+      "perusahaan": "PT Korea Indonesia (Korindo) Abadi",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 68,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS068",
+      "nama": "Perwakilan PT Persada Sport Facility",
+      "perusahaan": "PT Persada Sport Facility",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 69,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS069",
+      "nama": "Perwakilan GM Golf Halim 1",
+      "perusahaan": "GM Golf Halim 1",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 70,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS070",
+      "nama": "Perwakilan Ketua Umum Inkopau",
+      "perusahaan": "Ketua Umum Inkopau",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 71,
+      "kelompok": "Provider asuransi dan korporasi",
+      "kode": "RSAS071",
+      "nama": "Perwakilan PT Kreasi Hasta Mitra Perkasa",
+      "perusahaan": "PT Kreasi Hasta Mitra Perkasa",
+      "jabatan": "Perwakilan perusahaan/organisasi"
+    },
+    {
+      "nomor": 72,
+      "kelompok": "Tokoh masyarakat dan keluarga",
+      "kode": "RSAS072",
+      "nama": "Perwakilan Persatuan Purnawirawan TNI AU (PPAU)",
+      "perusahaan": "Persatuan Purnawirawan TNI AU (PPAU)",
+      "jabatan": "Perwakilan Persatuan Purnawirawan TNI AU (PPAU)"
+    },
+    {
+      "nomor": 73,
+      "kelompok": "Tokoh masyarakat dan keluarga",
+      "kode": "RSAS073",
+      "nama": "Ketua PD IBI Jakarta",
+      "perusahaan": "PD IBI Jakarta",
+      "jabatan": "Ketua PD IBI Jakarta"
+    },
+    {
+      "nomor": 74,
+      "kelompok": "Tokoh masyarakat dan keluarga",
+      "kode": "RSAS074",
+      "nama": "Ketua IBI Korwil Jakarta Selatan",
+      "perusahaan": "IBI Korwil Jakarta Selatan",
+      "jabatan": "Ketua IBI Korwil Jakarta Selatan"
+    },
+    {
+      "nomor": 75,
+      "kelompok": "Tokoh masyarakat dan keluarga",
+      "kode": "RSAS075",
+      "nama": "Komandan Komplek Triloka",
+      "perusahaan": "Komplek Triloka",
+      "jabatan": "Komandan Komplek Triloka"
+    },
+    {
+      "nomor": 76,
+      "kelompok": "Tokoh masyarakat dan keluarga",
+      "kode": "RSAS076",
+      "nama": "Bapak Ir. Triawan Saleh",
+      "perusahaan": "Keluarga Prof. dr. Abdulrachman Saleh",
+      "jabatan": "Perwakilan keluarga"
+    },
+    {
+      "nomor": 77,
+      "kelompok": "Tokoh masyarakat dan keluarga",
+      "kode": "RSAS077",
+      "nama": "Anggota keluarga tambahan 1 (nama belum tersedia)",
+      "perusahaan": "Keluarga Prof. dr. Abdulrachman Saleh",
+      "jabatan": "Anggota keluarga tambahan"
+    },
+    {
+      "nomor": 78,
+      "kelompok": "Tokoh masyarakat dan keluarga",
+      "kode": "RSAS078",
+      "nama": "Anggota keluarga tambahan 2 (nama belum tersedia)",
+      "perusahaan": "Keluarga Prof. dr. Abdulrachman Saleh",
+      "jabatan": "Anggota keluarga tambahan"
+    },
+    {
+      "nomor": 79,
+      "kelompok": "Tokoh masyarakat dan keluarga",
+      "kode": "RSAS079",
+      "nama": "Anggota keluarga tambahan 3 (nama belum tersedia)",
+      "perusahaan": "Keluarga Prof. dr. Abdulrachman Saleh",
+      "jabatan": "Anggota keluarga tambahan"
+    },
+    {
+      "nomor": 80,
+      "kelompok": "Tokoh masyarakat dan keluarga",
+      "kode": "RSAS080",
+      "nama": "Anggota keluarga tambahan 4 (nama belum tersedia)",
+      "perusahaan": "Keluarga Prof. dr. Abdulrachman Saleh",
+      "jabatan": "Anggota keluarga tambahan"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+PAKET ACARA RSAS — 19 NOVEMBER 2026, 09.00 WIB
+
+1. Pilih database cPanel yang sudah dibuat dan hubungkan user database-nya.
+   PHP 8.2+ dengan PDO MySQL; MySQL 8.0.16+ atau MariaDB 10.11+.
+2. Impor rsas_acara_19_november_2026.sql melalui phpMyAdmin pada database itu.
+   Berkas sudah berisi schema, migrasi status, dan 80 undangan (bukan dummy).
+   Tidak ada RSVP/absensi awal. Token QR dibuat acak oleh database, tidak
+   dicantumkan nilainya dalam SQL. Impor ulang tidak mengganti token lama.
+3. Unggah ISI folder hosting-subdomain/ ke document root subdomain
+   undanganregistrasirsas.puskesau.com. Sertakan .htaccess dan private/.htaccess.
+   SQL dan ZIP tetap di luar document root. Isi private/database.php dengan
+   nama database/user berprefix cPanel, password dan host hosting sebenarnya.
+   Saat upgrade, pertahankan konfigurasi Anda yang sudah terisi.
+4. Pastikan DNS/TLS subdomain benar. Buka /private/database.php harus 403.
+5. Buka Admin dan pilih acara RSAS-20261119. Pada instalasi baru:
+   total undangan 80, hadir 0, belum hadir 80; status Persiapan.
+   Jam 09.00 WIB disertakan pada informasi lokasi acara.
+6. Periksa jabatan/instansi, perwakilan PT dan empat slot keluarga tambahan.
+   Nama pribadi yang belum tersedia tidak dikarang. Gunakan Edit untuk
+   memperbaiki nama penerima setelah dikonfirmasi; kode/QR tetap sama.
+7. Cetak QR Massal menghasilkan empat batch: 20/20/20/20 kartu. Cetak A4,
+   skala 100%, matikan header/footer browser, lalu uji satu QR pada tablet.
+8. Saat penerimaan dimulai, ubah status ke Dibuka. Enam tablet harus memilih
+   acara RSAS-20261119 dan ID T01-T06 masing-masing. Semua perlu internet.
+   Selesai penerimaan, pilih Selesai; laporan tetap dapat dilihat/diekspor.
+
+Pengguna telah memilih 80 slot sesuai rincian. TOR awal menyebut 73; angka itu
+bukan diubah diam-diam. Progres aplikasi memakai seluruh 80 slot sebagai
+penyebut; jangan menyamakannya dengan target TOR resmi 73/85%.
+File private/daftar-undangan.csv sama dengan 80 slot di SQL. Tidak perlu impor CSV lagi
+setelah SQL berhasil. Sumber adalah teks yang diberikan pengguna; bukan hasil
+verifikasi dokumen TOR asli. Periksa nomenklatur instansi sebelum distribusi.
+
+Paket belum dipasang pada hosting produksi dan tidak berisi kredensial hosting.

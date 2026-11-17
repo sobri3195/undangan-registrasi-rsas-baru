@@ -111,3 +111,21 @@ Acara baru selalu dimulai dalam Persiapan. Tablet memeriksa status setiap 3 deti
 **Instalasi baru:** `rsas_dummy.sql` dalam paket hosting sudah mencakup schema dan migrasi status. Acara demo disetel Dibuka agar bisa langsung diuji; acara nyata baru tetap Persiapan. Jangan mengimpor SQL dummy sebagai pengganti migrasi pada database produksi.
 
 Uji status: `PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8107 PHP_CONTAINER=rsas-status-mysql node tests/event-status.mjs` pada database demo terpisah. Uji migrasi: `python3 tests/status-migration.py rsas-sql-mysql mysql` (membuat database uji `rsas_status_upgrade`; jangan arahkan ke produksi).
+
+## Cetak QR undangan massal
+
+Pilih acara di Admin → **Cetak QR Massal**. Tampilan cetak memuat seluruh daftar undangan acara, bukan hanya hasil filter kehadiran/pencarian tabel. Kartu memuat logo RSAS, nama acara, tanggal bila tersedia, nama tamu, perusahaan, jabatan, kode dan QR. Dua perwakilan PT tetap memperoleh dua kartu dengan kode berbeda.
+
+Maksimal 20 kartu dimuat per batch, diurutkan berdasarkan kode. Tekan **Cetak / Simpan PDF**, pilih kertas A4, skala 100%, dan matikan header/footer browser. Gunakan **Batch berikutnya** untuk mencetak sisanya. Browser menentukan jumlah lembar berdasarkan panjang identitas; kartu tidak dipotong menjadi dua halaman. Pengujian PDF Chromium mencetak batch normal 20 kartu dalam 4 lembar. Cetak satu contoh dan uji QR terlebih dahulu sebelum mencetak seluruh daftar.
+
+QR menggunakan token yang sudah ada di database. Mencetak tidak membuat token, undangan atau absensi baru. Halaman ini juga tersedia saat Persiapan dan Selesai karena hanya membaca data. Selesaikan koreksi daftar sebelum mencetak semua batch; jika daftar berubah di tengah pencetakan, periksa ulang urutan/batch agar tidak ada kartu terlewat atau tercetak ulang. Simpan PDF di media panitia dan bagikan kartu kepada tamu yang sesuai.
+
+Tidak perlu Composer atau pustaka PDF server; QR dibentuk dengan pustaka lokal yang sudah dibundel dan PDF dibuat oleh browser. Tombol cetak aktif setelah QR selesai dibuat. Tidak perlu migrasi database tambahan jika versi status acara sudah terpasang. Uji: `PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8110 node tests/bulk-print.mjs` pada database uji kosong dengan schema 05/06/08; memerlukan Chromium dan `pdftotext` untuk memeriksa PDF.
+
+## Paket daftar acara 19 November 2026
+
+Daftar dari pengguna tersedia pada `data/undangan-rsas-20261119.csv`, dengan kode `RSAS001`–`RSAS080`. Lihat [pemetaan dan catatan sumber](data/README.md) untuk rincian 10 kelompok, label perwakilan instansi/PT, serta empat anggota keluarga yang namanya belum tersedia. Rincian 80 slot disiapkan lengkap; perbedaan angka TOR awal 73 tetap dicatat, bukan dianggap sudah diverifikasi.
+
+Bangun paket khusus: `python3 tools/build_shared_hosting.py /workspace/rsas-acara-19-november-2026 --event-rsas`. ZIP tetap berisi satu folder `hosting-subdomain/` dan satu SQL `rsas_acara_19_november_2026.sql`. SQL gabungan sudah mencakup schema/status dan daftar acara sebenarnya, **tanpa data demo, RSVP, atau absensi awal**. Token dibuat acak di database, bukan disertakan nilainya dalam SQL. Status awal **Persiapan**; acara berlangsung Kamis, 19 November 2026, mulai 09.00 WIB. Jam dicantumkan pada informasi lokasi acara dan kartu cetak.
+
+CSV di paket ini berada dalam `private/daftar-undangan.csv`, bukan folder publik. Masukkan konfigurasi database di `private/database.php` setelah mengunggah folder. Setelah SQL berhasil, Admin akan menampilkan acara `RSAS-20261119` dengan 80 undangan dan 0 hadir. Periksa identitas sebelum mencetak empat batch (20/20/20/20). Angka progres aplikasi memakai seluruh slot acara; angka itu berbeda dari persentase TOR resmi dengan penyebut tetap 73 pada paket SQL lama. Impor ulang SQL tidak menimpa koreksi/status/token yang sudah tersimpan dan tidak menghapus slot tambahan yang mungkin dibuat panitia.

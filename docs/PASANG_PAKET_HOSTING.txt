@@ -67,3 +67,11 @@ Untuk instalasi BARU, rsas_dummy.sql sudah mencakup kolom status.
 Untuk UPGRADE database lama, impor hanya sql/08_status_acara.sql dari repositori,
 lalu unggah kode terbaru. Pertahankan private/database.php yang sudah terisi.
 Acara lama tetap Dibuka saat migrasi pertama; tutup acara yang telah berakhir.
+
+CETAK QR MASSAL: pilih acara di Admin, klik Cetak QR Massal. Halaman berisi
+maksimal 20 kartu per batch dari seluruh undangan acara. Setelah QR siap,
+klik Cetak / Simpan PDF, pilih A4, skala 100%, matikan header/footer browser.
+Gunakan Batch berikutnya untuk daftar berikut. Token/QR lama tetap sama dan
+mencetak tidak mencatat absensi. Acara Persiapan/Selesai juga boleh dicetak.
+Uji satu kartu pada tablet sebelum mencetak massal. Finalkan daftar sebelum
+mencetak beberapa batch. Simpan PDF di media panitia. Tidak ada migrasi SQL baru.

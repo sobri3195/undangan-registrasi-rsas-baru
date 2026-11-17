@@ -78,7 +78,8 @@ function renderArrivals(loading=false){
   const label={all:'Semua Undangan',present:'Sudah Datang',absent:'Belum Datang'}[attendanceFilter];
   $('list-summary').textContent=loading?'Memuat daftar…':`${arrivals.length} undangan ditampilkan · ${label}`;
 }
-function updateExport(){if(page==='admin')$('export').href=document.body.dataset.base+'/api.php?'+new URLSearchParams({action:'export',event:activeEvent,filter:attendanceFilter,q:$('arrival-search').value.trim()});}
+function updateExport(){if(page!=='admin')return;$('export').href=document.body.dataset.base+'/api.php?'+new URLSearchParams({action:'export',event:activeEvent,filter:attendanceFilter,q:$('arrival-search').value.trim()});$('bulk-print').href=document.body.dataset.base+'/index.php?'+new URLSearchParams({page:'admin',print:'qr',event:activeEvent,batch:'1'});$('bulk-print').setAttribute('aria-disabled',String(!activeEvent));}
+on('bulk-print','click',e=>{if(!activeEvent){e.preventDefault();throw Error('Pilih acara terlebih dahulu.');}});
 function changeListing(){listingVersion++;arrivals=[];renderArrivals(true);updateExport();}
 let refreshingEvent=null;
 async function refresh(){if(!activeEvent||refreshingEvent===JSON.stringify([activeEvent,attendanceFilter,$('arrival-search')?.value.trim()||'',listingVersion]))return;const version=eventVersion,listVersion=listingVersion,event=JSON.stringify([activeEvent,attendanceFilter,$('arrival-search')?.value.trim()||'',listingVersion]);refreshingEvent=event;try{
