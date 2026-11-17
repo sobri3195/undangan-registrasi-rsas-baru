@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS scan_acara (
   kode VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
   nama VARCHAR(200) NOT NULL,
   tanggal DATE NULL,
+  status ENUM('persiapan','dibuka','selesai') NOT NULL DEFAULT 'persiapan',
   lokasi VARCHAR(200) NOT NULL DEFAULT '',
   dibuat_utc DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   CONSTRAINT ck_acara_nama_sederhana CHECK (CHAR_LENGTH(TRIM(nama))>0)

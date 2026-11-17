@@ -13,3 +13,5 @@ Semua T01–T06 dapat melakukan scanning dengan fungsi sama. Tidak ada tablet ya
 Sebelum acara uji pada Chrome Android dan Safari iPad yang sebenarnya, lewat HTTPS, memakai data sintetis. Periksa izin kamera belakang, fokus QR, pemilihan ID tablet, tampilan nama, konfirmasi, dan daftar Admin. Untuk dua perwakilan PT, siapkan dua slot dengan dua kode. Jangan memakai satu QR perusahaan untuk dua orang.
 
 Untuk acara berikutnya, buat acara baru di Admin dan impor CSV-nya. Muat ulang halaman keenam tablet, pilih acara baru pada setiap tablet. Memilih acara di Admin tidak mengganti acara tablet lain. Rekap dan ekspor selalu mengikuti acara terpilih.
+
+Status acara terlihat pada setiap tablet. Persiapan belum menerima check-in; Dibuka mengizinkan scan dan konfirmasi; Selesai menghentikan kamera dan pencatatan. Tablet memeriksa status setiap 3 detik, dan server tetap menolak check-in yang dikirim setelah penutupan. Pergantian status tidak menghapus riwayat. Mintalah panitia membuka acara bila tombol kamera belum aktif; jangan mengganti ke acara lain untuk melewati penutupan.

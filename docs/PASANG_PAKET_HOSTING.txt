@@ -50,3 +50,20 @@ Nama, perusahaan dan jabatan dapat dikoreksi; kode/QR serta absensi tetap sama.
 Untuk tamu belum hadir, gunakan filter Belum Datang atau Semua Undangan.
 Jika ada pesan perubahan dari perangkat lain, tutup dan buka ulang formulir.
 Tidak perlu impor ulang SQL untuk memperbarui instalasi yang sudah ada.
+
+PRATINJAU CSV: pilih acara dan CSV, tekan Periksa & Pratinjau CSV.
+Periksa jumlah baru/sudah ada/bermasalah dan kesalahan per baris. Perbaiki semua
+kesalahan, periksa ulang, lalu tekan Konfirmasi Impor. Pratinjau tidak menyimpan
+data. Mengganti berkas/acara atau Batalkan mengharuskan pemeriksaan ulang.
+Server memeriksa ulang sebelum menyimpan; data identik tidak digandakan dan
+konflik membatalkan seluruh impor. Cukup unggah kode terbaru; SQL tetap sama.
+
+STATUS ACARA: acara demo Dibuka. Acara baru dimulai dalam Persiapan; setelah
+CSV/QR siap, pilih Dibuka lalu Terapkan di Admin agar tablet bisa check-in.
+Setelah acara berakhir pilih Selesai: kamera/check-in, impor dan edit dihentikan;
+rekap/QR tetap bisa dilihat dan laporan bisa diekspor. Tablet mengikuti perubahan
+sekitar 3 detik. Admin dapat membuka kembali tanpa menghapus catatan sebelumnya.
+Untuk instalasi BARU, rsas_dummy.sql sudah mencakup kolom status.
+Untuk UPGRADE database lama, impor hanya sql/08_status_acara.sql dari repositori,
+lalu unggah kode terbaru. Pertahankan private/database.php yang sudah terisi.
+Acara lama tetap Dibuka saat migrasi pertama; tutup acara yang telah berakhir.

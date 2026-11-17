@@ -9,3 +9,5 @@
 7. Buka `/index.php?page=admin`, impor CSV, lalu uji `/index.php?page=scan` pada keenam tablet. API/PHP mengirim `Cache-Control: no-store`; bypass cache CDN untuk PHP dan API. Data harus tampil di Admin tanpa pemindahan file.
 
 Pemasangan DNS/TLS dan database produksi belum dijalankan dari lingkungan pengembangan ini. Halaman tetap tanpa login sesuai permintaan awal.
+
+Pembaruan status acara pada instalasi lama memerlukan `sql/08_status_acara.sql` sebelum kode baru digunakan. Impor di database aplikasi yang sama, dengan backup lebih dahulu. Untuk instalasi baru dari ZIP, SQL gabungan sudah mencakup status. Setelah membuat acara nyata, buka penerimaan melalui Admin → Status acara → Dibuka → Terapkan; tutup dengan Selesai setelah penerimaan berakhir.
