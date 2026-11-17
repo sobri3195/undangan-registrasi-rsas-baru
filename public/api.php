@@ -11,13 +11,41 @@ function guest(PDO $db,string $event,string $code): array {
 }
 try {
     $action=$_GET['action']??'';
-    if (!is_string($action)||!in_array($action,['status','search','lookup','invitation','import','checkin','export'],true)) reply(['error'=>'Rute tidak ditemukan.'],404);
-    $write=in_array($action,['import','checkin'],true);
+    if (!is_string($action)||!in_array($action,['events','create_event','status','search','lookup','invitation','import','checkin','export'],true)) reply(['error'=>'Rute tidak ditemukan.'],404);
+    $write=in_array($action,['import','checkin','create_event'],true);
     if ($_SERVER['REQUEST_METHOD']!==($write?'POST':'GET')) { header('Allow: '.($write?'POST':'GET'));reply(['error'=>'Metode tidak diizinkan.'],405); }
     if ($write) csrf();
     // Release the session lock before DB work: polling must not block check-in.
     session_write_close();
-    $db=database();$event=configuration()['EVENT_CODE'];
+    $db=database();
+    if ($action==='events') {
+        reply(['events'=>$db->query('SELECT kode,nama,tanggal,lokasi FROM scan_acara ORDER BY tanggal IS NULL,tanggal DESC,dibuat_utc DESC,kode')->fetchAll()]);
+    }
+    if ($action==='create_event') {
+        $raw=file_get_contents('php://input',false,null,0,4097);
+        if (strlen($raw)>4096) throw new InvalidArgumentException('Permintaan terlalu besar.');
+        $b=json_decode($raw,true,16,JSON_THROW_ON_ERROR);
+        if (!is_array($b)) throw new InvalidArgumentException('Data acara tidak valid.');
+        $c=code($b['kode']??'');$name=field($b['nama']??'');$location=field($b['lokasi']??'');
+        if ($name==='') throw new InvalidArgumentException('Nama acara wajib diisi.');
+        $date=$b['tanggal']??'';
+        if (!is_string($date)) throw new InvalidArgumentException('Tanggal acara tidak valid.');
+        if ($date!=='') {
+            $d=DateTimeImmutable::createFromFormat('!Y-m-d',$date);
+            if (!$d || $d->format('Y-m-d')!==$date || $date<'1000-01-01') throw new InvalidArgumentException('Tanggal acara tidak valid.');
+        }
+        try {
+            $q=$db->prepare('INSERT INTO scan_acara(kode,nama,tanggal,lokasi,dibuat_utc) VALUES (?,?,?,?,UTC_TIMESTAMP(3))');
+            $q->execute([$c,$name,$date?:null,$location]);
+        } catch (PDOException $e) {
+            if ($e->getCode()==='23000') throw new InvalidArgumentException('Kode acara sudah digunakan. Gunakan kode lain.');
+            throw $e;
+        }
+        reply(['message'=>'Acara baru berhasil dibuat.','event'=>$c],201);
+    }
+    $event=code($_GET['event']??'');
+    $q=$db->prepare('SELECT kode,nama,tanggal,lokasi FROM scan_acara WHERE kode=?');$q->execute([$event]);$eventData=$q->fetch();
+    if (!$eventData) throw new InvalidArgumentException('Acara tidak ditemukan. Pilih acara yang tersedia.');
     if ($action==='import') {
         $f=$_FILES['csv']??null;
         if (!$f || $f['error']!==UPLOAD_ERR_OK || $f['size']>5*1024*1024) throw new InvalidArgumentException('Pilih CSV maksimal 5 MB; periksa batas unggah PHP.');
@@ -33,7 +61,7 @@ try {
             if ($row===[null]) continue;
             if (count($row)!==count($headers)) throw new InvalidArgumentException('Jumlah kolom CSV tidak sesuai.');
             $r=array_combine($headers,$row);
-            if ($headers===$legacy && $r['event']!==$event) throw new InvalidArgumentException('Event CSV berbeda dengan EVENT_CODE konfigurasi.');
+            if ($headers===$legacy && $r['event']!==$event) throw new InvalidArgumentException('Event CSV berbeda dengan acara yang dipilih.');
             $c=code(trim($r['kode']??$r['code']));
             if (isset($seen[$c])) throw new InvalidArgumentException('Kode duplikat dalam CSV: '.$c);
             $seen[$c]=true;
@@ -66,7 +94,7 @@ try {
     if ($action==='lookup' || $action==='invitation') {
         $c=code($_GET['code']??'');$g=guest($db,$event,$c);
         if (isset($_GET['token'])) {
-            if (!is_string($_GET['event']??null) || $_GET['event']!==$event || !is_string($_GET['token']) || !hash_equals($g['token'],$_GET['token'])) throw new InvalidArgumentException('QR tidak cocok dengan daftar acara.');
+            if (!is_string($_GET['qr_event']??null) || $_GET['qr_event']!==$event || !is_string($_GET['token']) || !hash_equals($g['token'],$_GET['token'])) throw new InvalidArgumentException('QR tidak cocok dengan daftar acara.');
         }
         $q=$db->prepare('SELECT tablet,dicatat_utc FROM scan_catatan WHERE acara=? AND kode=? ORDER BY dicatat_utc,tablet');$q->execute([$event,$c]);$records=$q->fetchAll();
         $url=APP_BASE_URL.'/index.php?page=scan#'.http_build_query(['v'=>'1','event'=>$event,'code'=>$c,'token'=>$g['token']],'','&',PHP_QUERY_RFC3986);
@@ -84,7 +112,7 @@ try {
     // One grouped row per guest slot, regardless of the number of scanning tablets.
     $q=$db->prepare("SELECT t.kode,t.nama,t.perusahaan,t.jabatan,MIN(c.dicatat_utc) AS pertama_utc,GROUP_CONCAT(c.tablet ORDER BY c.tablet SEPARATOR ', ') AS tablet,COUNT(c.tablet) AS jumlah_tablet FROM scan_tamu t JOIN scan_catatan c ON c.acara=t.acara AND c.kode=t.kode WHERE t.acara=? GROUP BY t.kode,t.nama,t.perusahaan,t.jabatan ORDER BY pertama_utc DESC,t.kode");$q->execute([$event]);$arrivals=$q->fetchAll();
     if ($action==='export') {
-        header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="kehadiran-rsas.csv"');
+        header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="kehadiran-'. $event .'.csv"');
         $out=fopen('php://output','w');fwrite($out,"\xEF\xBB\xBF");
         fputcsv($out,['kode','nama','perusahaan','jabatan','pertama_utc','tablet','jumlah_tablet'],',','"','');
         foreach ($arrivals as $row) {
@@ -96,7 +124,7 @@ try {
     $q=$db->prepare('SELECT COUNT(*) FROM scan_tamu WHERE acara=?');$q->execute([$event]);$total=(int)$q->fetchColumn();
     $q=$db->prepare('SELECT tablet,COUNT(*) AS jumlah FROM scan_catatan WHERE acara=? GROUP BY tablet');$q->execute([$event]);$tablets=array_fill_keys(['T01','T02','T03','T04','T05','T06'],0);
     foreach ($q as $r) $tablets[$r['tablet']]=(int)$r['jumlah'];
-    reply(['event'=>$event,'total'=>$total,'present'=>count($arrivals),'tablets'=>$tablets,'arrivals'=>$arrivals,'server_utc'=>gmdate('Y-m-d\TH:i:s\Z')]);
+    reply(['event'=>$event,'event_info'=>$eventData,'total'=>$total,'present'=>count($arrivals),'tablets'=>$tablets,'arrivals'=>$arrivals,'server_utc'=>gmdate('Y-m-d\TH:i:s\Z')]);
 } catch (InvalidArgumentException|JsonException $e) {
     if (isset($db) && $db->inTransaction()) $db->rollBack();reply(['error'=>$e->getMessage()],422);
 } catch (Throwable $e) {

@@ -11,3 +11,5 @@ Semua T01–T06 dapat melakukan scanning dengan fungsi sama. Tidak ada tablet ya
 7. Akhir sesi: Admin → Unduh CSV Kehadiran. Backup database melalui cPanel/phpMyAdmin. Tidak diperlukan ekspor dan penggabungan JSON tablet.
 
 Sebelum acara uji pada Chrome Android dan Safari iPad yang sebenarnya, lewat HTTPS, memakai data sintetis. Periksa izin kamera belakang, fokus QR, pemilihan ID tablet, tampilan nama, konfirmasi, dan daftar Admin. Untuk dua perwakilan PT, siapkan dua slot dengan dua kode. Jangan memakai satu QR perusahaan untuk dua orang.
+
+Untuk acara berikutnya, buat acara baru di Admin dan impor CSV-nya. Muat ulang halaman keenam tablet, pilih acara baru pada setiap tablet. Memilih acara di Admin tidak mengganti acara tablet lain. Rekap dan ekspor selalu mengikuti acara terpilih.

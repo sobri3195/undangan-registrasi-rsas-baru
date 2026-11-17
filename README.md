@@ -10,9 +10,9 @@ Semua tablet menggunakan daftar dan kehadiran di **database server yang sama**. 
 ## Pasang di cPanel
 
 1. Buat/pilih database MySQL 8.0.16+ atau MariaDB 10.11+ dan user melalui cPanel. Hubungkan user ke database. Aktifkan PHP 8.2+ dengan PDO MySQL (`pdo_mysql`).
-2. Pilih database tersebut di phpMyAdmin, impor **[sql/05_scan_sederhana.sql](sql/05_scan_sederhana.sql)**. Hanya ada dua tabel aktif: `scan_tamu` dan `scan_catatan`. Tidak perlu mengimpor schema/seed/paket SQL pendamping versi lama.
+2. Pilih database tersebut di phpMyAdmin, impor **[sql/05_scan_sederhana.sql](sql/05_scan_sederhana.sql)** lalu **[sql/06_multi_acara.sql](sql/06_multi_acara.sql)**. Tiga tabel aktif: `scan_acara`, `scan_tamu` dan `scan_catatan`. Tidak perlu mengimpor schema/seed/paket SQL pendamping versi lama.
 3. Unggah **isi `public/`** termasuk `.htaccess` ke document root subdomain `undanganregistrasirsas.puskesau.com`.
-4. Salin `config.local.php.example` menjadi `config.local.php` **satu tingkat di atas document root**. Isi nama database/user dengan prefix cPanel, password, host database hosting yang sebenarnya, dan kode acara. Contoh jika document root `/home/akun/undangan/`, lokasi konfigurasi `/home/akun/config.local.php`. Jangan letakkan konfigurasi dalam folder web. Alternatif: variabel server `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`, `EVENT_CODE`.
+4. Salin `config.local.php.example` menjadi `config.local.php` **satu tingkat di atas document root**. Isi nama database/user dengan prefix cPanel, password, host database hosting yang sebenarnya. Acara dipilih melalui antarmuka. Contoh jika document root `/home/akun/undangan/`, lokasi konfigurasi `/home/akun/config.local.php`. Jangan letakkan konfigurasi dalam folder web. Alternatif: variabel server `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`.
 5. Pastikan DNS subdomain mengarah ke server hosting yang diberikan penyedia dan sertifikat TLS valid. `.htaccess` mengalihkan HTTP ke domain HTTPS tetap. Lihat [cPanel](docs/CPANEL.md).
 6. Buka Admin → impor `public/template.csv`. Buka Scan di keenam tablet → pilih ID masing-masing → uji QR dan konfirmasi. Admin harus melihat nama dan tablet pencatat.
 
@@ -27,7 +27,7 @@ PT001,Dian Contoh,PT Mitra Sintetis,Direktur
 PT002,Sari Contoh,PT Mitra Sintetis,Manajer
 ```
 
-QR dapat berisi kode saja (misalnya `PT001`) atau tautan QR undangan domain RSAS. QR dari aplikasi lama tetap cocok jika CSV lama dengan token yang sama diimpor dan EVENT_CODE sesuai. Daftar IndexedDB lama tidak dipindahkan otomatis ke MySQL; impor master CSV untuk menyiapkan daftar server.
+QR dapat berisi kode saja (misalnya `PT001`) atau tautan QR undangan domain RSAS. QR dari aplikasi lama tetap cocok jika CSV lama dengan token yang sama diimpor dan kode acara sesuai. Daftar IndexedDB lama tidak dipindahkan otomatis ke MySQL; impor master CSV untuk menyiapkan daftar server.
 
 UTF-8, pemisah koma, header persis seperti contoh. Satu kode = satu slot. Dua perwakilan perusahaan memakai dua kode berbeda dan dihitung dua orang. Kode: 1–64 huruf ASCII/angka/`_`/`-`; setiap teks maksimal 200 karakter. Kutip nilai yang mengandung koma. Batas 5 MB / 10.000 baris.
 
@@ -51,3 +51,13 @@ Aplikasi lama menggunakan service worker/IndexedDB untuk rekap offline. Versi in
 - [Hasil uji](docs/PENGUJIAN.md) dan [panduan enam tablet](docs/ENAM-TABLET.md).
 
 `sql/01`–`04`, konverter `tools/`, dan dokumen SQL lama tetap disimpan sebagai paket arsip pendamping versi sebelumnya; bukan komponen runtime dua tampilan ini. Generator qrcode-generator 2.0.4 (MIT) dan jsQR 1.4.0 (Apache-2.0) dibundel lokal dalam `public/assets/vendor/`.
+
+## Beberapa acara
+
+Impor `sql/06_multi_acara.sql` sesudah `05_scan_sederhana.sql` pada database yang sama. Untuk pemasangan yang sudah menggunakan versi dua tampilan, cukup jalankan `06_multi_acara.sql` lalu unggah ulang isi `public/`. Migrasi mempertahankan undangan dan scan lama, membuat entri acara untuk setiap kode acara lama, dan aman dijalankan ulang. Pada database baru tersedia acara awal `RSAS-2026`. Parameter `EVENT_CODE` konfigurasi lama tidak lagi digunakan.
+
+Di **Admin → Acara baru**, isi nama, kode unik, tanggal dan lokasi (dua terakhir opsional). Setelah dibuat, acara langsung dipilih. Impor CSV untuk acara tersebut. Pada setiap tablet pilih acara yang sama sebelum scanning. Muat ulang halaman tablet untuk mengambil daftar acara yang baru dibuat Admin. Pilihan acara tersimpan pada browser masing-masing; mengganti pilihan Admin tidak mengubah pilihan tablet lain.
+
+Setiap operasi pencarian, impor CSV, QR, konfirmasi dan ekspor memakai acara terpilih. Kode `PT001` dapat dipakai lagi di acara lain dengan nama tamu berbeda. Kehadiran dua acara tidak digabung. Saat mengganti acara, konfirmasi/pencarian lama dibersihkan. QR tautan yang berisi event berbeda ditolak dengan petunjuk memilih acara yang sesuai; QR kode polos memakai acara terpilih. Untuk mengurangi salah acara, bagikan QR tautan yang dibuat Admin.
+
+Ringkasan Admin dan progres kehadiran selalu untuk acara terpilih, dengan total undangan acara sebagai penyebut. Tanggal acara adalah tanggal kalender; waktu kedatangan disimpan dalam UTC dan ditampilkan menurut zona waktu perangkat. Berkas CSV diberi nama sesuai kode acara. Tidak ada penghapusan atau pengubahan identitas acara pada pembaruan ini.
