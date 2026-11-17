@@ -8,9 +8,9 @@ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'
 const contexts=[],errors=[];
 try {
  const adminContext=await browser.newContext({viewport:{width:1280,height:900}});contexts.push(adminContext);
- const admin=await adminContext.newPage();admin.on('pageerror',e=>errors.push(e.message));
+ const admin=await adminContext.newPage();admin.on('dialog',dialog=>dialog.accept());admin.on('pageerror',e=>errors.push(e.message));
  const res=await admin.goto(origin+'/index.php?page=admin');assert.equal(res.status(),200);assert.ok(res.headers()['content-security-policy']);assert.match(res.headers()['permissions-policy'],/camera=\(\)/);
- await admin.waitForFunction(()=>document.getElementById('total').textContent==='0');
+ await admin.waitForFunction(()=>document.getElementById('total').textContent==='0');await admin.selectOption('#status-select','dibuka');await admin.locator('#apply-status').click();await admin.waitForFunction(()=>document.getElementById('event-state').dataset.state==='dibuka');
  assert.equal((await admin.request.get(origin+'/index.php?page[]=admin')).status(),404);
  assert.equal((await admin.request.get(origin+'/api.php?event=RSAS-2026&action=checkin')).status(),405);
  assert.equal((await admin.request.post(origin+'/api.php?event=RSAS-2026&action=checkin',{data:{code:'PT001',tablet:'T01'}})).status(),422);
@@ -56,7 +56,7 @@ try {
  await admin.locator('#new-event').click();await admin.locator('#event-name').fill('Temu Mitra RSAU 2027');await admin.locator('#event-code').fill('MITRA-2027');await admin.locator('#event-date').fill('2027-02-20');await admin.locator('#event-location').fill('Aula RSAU');await admin.locator('#save-event').click();
  await admin.waitForFunction(()=>document.getElementById('event-select').value==='MITRA-2027'&&document.getElementById('total').textContent==='0');
  assert.equal(await tablets[0].locator('#event-select').inputValue(),'RSAS-2026');
- await admin.locator('#csv').setInputFiles({name:'event-b.csv',mimeType:'text/csv',buffer:Buffer.from('kode,nama,perusahaan,jabatan\nPT001,Tamu Acara Kedua,PT Kedua,Direktur\n')});await admin.locator('#import').click();await admin.locator('#confirm-import').waitFor({state:'visible'});await admin.locator('#confirm-import').click();await admin.waitForFunction(()=>document.getElementById('total').textContent==='1');
+ await admin.locator('#csv').setInputFiles({name:'event-b.csv',mimeType:'text/csv',buffer:Buffer.from('kode,nama,perusahaan,jabatan\nPT001,Tamu Acara Kedua,PT Kedua,Direktur\n')});await admin.locator('#import').click();await admin.locator('#confirm-import').waitFor({state:'visible'});await admin.locator('#confirm-import').click();await admin.waitForFunction(()=>document.getElementById('total').textContent==='1');await admin.selectOption('#status-select','dibuka');await admin.locator('#apply-status').click();await admin.waitForFunction(()=>document.getElementById('event-state').dataset.state==='dibuka');
  await tablets[0].reload();await tablets[0].waitForFunction(()=>document.getElementById('event-select').options.length===2);await tablets[0].selectOption('#event-select','MITRA-2027');
  assert.equal(await tablets[0].locator('#identity').isHidden(),true);
  await tablets[0].locator('details summary').click();await tablets[0].locator('#search').fill('PT001');await tablets[0].locator('#results button').click();await tablets[0].waitForFunction(()=>document.getElementById('guest-name').textContent==='Tamu Acara Kedua');await tablets[0].locator('#confirm').click();

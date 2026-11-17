@@ -93,3 +93,21 @@ Pemeriksaan tidak mengubah database atau membuat token QR. Setelah semua kesalah
 Mengganti berkas, mengganti acara, atau menekan Batalkan membatalkan pratinjau. Jika koneksi gagal saat konfirmasi, periksa ulang CSV; impor ulang data identik tidak menggandakan undangan. Format tetap UTF-8 (BOM boleh), pemisah koma, maksimal 5 MB/10.000 undangan. Kutip ganda dalam sel berkutip ditulis dua kali. Header salah, kutip rusak, dan berkas tanpa undangan ditolak. Pembaruan ini tidak memerlukan perubahan database.
 
 Uji khusus pada database demo terpisah: `PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8104 node tests/csv-preview.mjs`. Uji tersebut mengubah data sintetis; jangan jalankan pada produksi.
+
+## Status acara: Persiapan, Dibuka, Selesai
+
+Di Admin, pilih status di samping nama acara, tekan **Terapkan**, lalu konfirmasi. Status berlaku untuk acara terpilih saja.
+
+| Status | Perilaku |
+| --- | --- |
+| Persiapan | Siapkan CSV, edit identitas, dan buat QR. Kamera/check-in belum dibuka. |
+| Dibuka | T01–T06 boleh mencatat hadir. Impor dan perbaikan identitas tetap tersedia. |
+| Selesai | Lihat/cari daftar, QR, dan ekspor laporan; check-in, pratinjau/impor CSV, dan edit identitas dihentikan. |
+
+Acara baru selalu dimulai dalam Persiapan. Tablet memeriksa status setiap 3 detik menggunakan endpoint ringan; ketika ditutup, kamera dihentikan dan konfirmasi lama dibersihkan. PHP tetap memeriksa status dalam transaksi dengan penguncian baris acara, sehingga permintaan dari tampilan lama tidak dapat melewati penutupan. Pembukaan kembali diperbolehkan melalui perubahan status yang dikonfirmasi Admin; daftar, token QR dan riwayat hadir tidak dihapus. Perubahan status dari formulir yang tertinggal ditolak jika sudah ada perubahan berbeda dari perangkat lain.
+
+**Upgrade instalasi lama:** backup database, pilih database yang sama di phpMyAdmin, impor `sql/08_status_acara.sql`, lalu unggah kode terbaru sambil mempertahankan `private/database.php`. Migrasi aman diulang: acara yang sudah ada dipertahankan Dibuka saat kolom pertama kali ditambahkan, supaya penerimaan berjalan tidak berhenti mendadak. Tandai acara lama yang sudah berakhir sebagai Selesai melalui Admin. Status yang sudah dipilih tidak diubah ketika migrasi diulang.
+
+**Instalasi baru:** `rsas_dummy.sql` dalam paket hosting sudah mencakup schema dan migrasi status. Acara demo disetel Dibuka agar bisa langsung diuji; acara nyata baru tetap Persiapan. Jangan mengimpor SQL dummy sebagai pengganti migrasi pada database produksi.
+
+Uji status: `PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8107 PHP_CONTAINER=rsas-status-mysql node tests/event-status.mjs` pada database demo terpisah. Uji migrasi: `python3 tests/status-migration.py rsas-sql-mysql mysql` (membuat database uji `rsas_status_upgrade`; jangan arahkan ke produksi).

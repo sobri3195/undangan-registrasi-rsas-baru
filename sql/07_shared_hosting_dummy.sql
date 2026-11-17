@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS scan_acara (
   kode VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
   nama VARCHAR(200) NOT NULL,
   tanggal DATE NULL,
+  status ENUM('persiapan','dibuka','selesai') NOT NULL DEFAULT 'persiapan',
   lokasi VARCHAR(200) NOT NULL DEFAULT '',
   dibuat_utc DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   CONSTRAINT ck_acara_nama_sederhana CHECK (CHAR_LENGTH(TRIM(nama))>0)
@@ -36,10 +37,22 @@ CREATE TABLE IF NOT EXISTS scan_acara (
 
 -- Seluruh identitas/token berikut SINTETIS, hanya untuk latihan.
 -- Demo memakai kode acara khusus, tidak menimpa identitas yang sudah ada.
+-- Upgrade instalasi yang sudah memiliki scan_acara. Pilih database cPanel yang sama.
+-- Acara lama tetap dibuka, acara baru default persiapan. Aman dijalankan ulang.
+SET @rsas_status_sql = IF(
+  EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='scan_acara' AND COLUMN_NAME='status'),
+  'DO 0',
+  'ALTER TABLE scan_acara ADD COLUMN status ENUM(''persiapan'',''dibuka'',''selesai'') NOT NULL DEFAULT ''dibuka'''
+);
+PREPARE rsas_status_stmt FROM @rsas_status_sql;
+EXECUTE rsas_status_stmt;
+DEALLOCATE PREPARE rsas_status_stmt;
+ALTER TABLE scan_acara ALTER COLUMN status SET DEFAULT 'persiapan';
+
 START TRANSACTION;
-INSERT INTO scan_acara(kode,nama,tanggal,lokasi,dibuat_utc) VALUES
-('DEMO-RSAS-2026','DEMO - Registrasi Undangan RSAU','2026-12-10','Aula RSAU (contoh)','2026-11-17 00:00:00.000'),
-('DEMO-MITRA-2027','DEMO - Temu Mitra RSAU','2027-02-20','Ruang Pertemuan (contoh)','2026-11-17 00:00:00.000')
+INSERT INTO scan_acara(kode,nama,tanggal,lokasi,dibuat_utc,status) VALUES
+('DEMO-RSAS-2026','DEMO - Registrasi Undangan RSAU','2026-12-10','Aula RSAU (contoh)','2026-11-17 00:00:00.000','dibuka'),
+('DEMO-MITRA-2027','DEMO - Temu Mitra RSAU','2027-02-20','Ruang Pertemuan (contoh)','2026-11-17 00:00:00.000','dibuka')
 ON DUPLICATE KEY UPDATE kode=VALUES(kode);
 INSERT INTO scan_tamu(acara,kode,nama,perusahaan,jabatan,token) VALUES
 ('DEMO-RSAS-2026','VIP001','Dr. Arga Sintetis','Instansi Demo','Pimpinan','ea41da7f3b1bd57d8b4402a5f70ff5f45d05866cb09de33b8c224dbf61d28e66'),

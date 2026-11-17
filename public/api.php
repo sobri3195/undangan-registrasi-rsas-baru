@@ -5,6 +5,16 @@ require __DIR__.'/lib/csv_import.php';
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 header('Content-Type: application/json; charset=utf-8');
 function reply(array $data,int $status=200): never { http_response_code($status); echo json_encode($data,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR); exit; }
+function locked_event(PDO $db,string $event): array {
+    $q=$db->prepare('SELECT status FROM scan_acara WHERE kode=? FOR UPDATE');$q->execute([$event]);$row=$q->fetch();
+    if (!$row) throw new InvalidArgumentException('Acara tidak ditemukan.');
+    return $row;
+}
+function require_event_write(PDO $db,string $event,bool $checkin=false): void {
+    $status=locked_event($db,$event)['status'];
+    if ($checkin && $status!=='dibuka') throw new DomainException($status==='selesai'?'Acara sudah selesai. Kehadiran baru tidak dapat dicatat.':'Acara masih dalam persiapan. Tunggu panitia membuka penerimaan.');
+    if (!$checkin && $status==='selesai') throw new DomainException('Acara sudah selesai. Data hanya dapat dilihat dan diekspor.');
+}
 function guest(PDO $db,string $event,string $code): array {
     $q=$db->prepare('SELECT kode,nama,perusahaan,jabatan,token FROM scan_tamu WHERE acara=? AND kode=?');$q->execute([$event,$code]);$g=$q->fetch();
     if (!$g) throw new InvalidArgumentException('Undangan tidak ditemukan dalam daftar CSV.');
@@ -12,15 +22,15 @@ function guest(PDO $db,string $event,string $code): array {
 }
 try {
     $action=$_GET['action']??'';
-    if (!is_string($action)||!in_array($action,['events','create_event','update_guest','status','search','lookup','invitation','preview_import','import','checkin','export'],true)) reply(['error'=>'Rute tidak ditemukan.'],404);
-    $write=in_array($action,['preview_import','import','checkin','create_event','update_guest'],true);
+    if (!is_string($action)||!in_array($action,['events','event_state','set_event_status','create_event','update_guest','status','search','lookup','invitation','preview_import','import','checkin','export'],true)) reply(['error'=>'Rute tidak ditemukan.'],404);
+    $write=in_array($action,['preview_import','import','checkin','create_event','update_guest','set_event_status'],true);
     if ($_SERVER['REQUEST_METHOD']!==($write?'POST':'GET')) { header('Allow: '.($write?'POST':'GET'));reply(['error'=>'Metode tidak diizinkan.'],405); }
     if ($write) csrf();
     // Release the session lock before DB work: polling must not block check-in.
     session_write_close();
     $db=database();
     if ($action==='events') {
-        reply(['events'=>$db->query('SELECT kode,nama,tanggal,lokasi FROM scan_acara ORDER BY tanggal IS NULL,tanggal DESC,dibuat_utc DESC,kode')->fetchAll()]);
+        reply(['events'=>$db->query('SELECT kode,nama,tanggal,lokasi,status FROM scan_acara ORDER BY tanggal IS NULL,tanggal DESC,dibuat_utc DESC,kode')->fetchAll()]);
     }
     if ($action==='create_event') {
         $raw=file_get_contents('php://input',false,null,0,4097);
@@ -45,8 +55,22 @@ try {
         reply(['message'=>'Acara baru berhasil dibuat.','event'=>$c],201);
     }
     $event=code($_GET['event']??'');
-    $q=$db->prepare('SELECT kode,nama,tanggal,lokasi FROM scan_acara WHERE kode=?');$q->execute([$event]);$eventData=$q->fetch();
+    $q=$db->prepare('SELECT kode,nama,tanggal,lokasi,status FROM scan_acara WHERE kode=?');$q->execute([$event]);$eventData=$q->fetch();
     if (!$eventData) throw new InvalidArgumentException('Acara tidak ditemukan. Pilih acara yang tersedia.');
+    if ($action==='event_state') {
+        $q=$db->prepare('SELECT COUNT(*) FROM scan_tamu WHERE acara=?');$q->execute([$event]);
+        reply(['event'=>$event,'event_info'=>$eventData,'total'=>(int)$q->fetchColumn()]);
+    }
+    if ($action==='set_event_status') {
+        $raw=file_get_contents('php://input',false,null,0,1025);
+        if (strlen($raw)>1024) throw new InvalidArgumentException('Permintaan terlalu besar.');
+        $b=json_decode($raw,true,8,JSON_THROW_ON_ERROR);$allowed=['persiapan','dibuka','selesai'];
+        if (!is_array($b) || !in_array($b['status']??null,$allowed,true) || !in_array($b['previous']??null,$allowed,true)) throw new InvalidArgumentException('Status acara tidak valid.');
+        $db->beginTransaction();$current=locked_event($db,$event)['status'];
+        if ($current!==$b['previous'] && $current!==$b['status']) throw new DomainException('Status diubah dari perangkat lain. Segarkan data sebelum mencoba lagi.');
+        $q=$db->prepare('UPDATE scan_acara SET status=? WHERE kode=?');$q->execute([$b['status'],$event]);$db->commit();
+        reply(['message'=>'Status acara berhasil diperbarui.','status'=>$b['status']]);
+    }
     if ($action==='update_guest') {
         $raw=file_get_contents('php://input',false,null,0,8193);
         if (strlen($raw)>8192) throw new InvalidArgumentException('Permintaan terlalu besar.');
@@ -59,7 +83,7 @@ try {
             field($b['original'][$key]??null);$original[$key]=$b['original'][$key];
         }
         if ($values['nama']==='') throw new InvalidArgumentException('Nama wajib diisi.');
-        $db->beginTransaction();
+        $db->beginTransaction();require_event_write($db,$event);
         $q=$db->prepare('SELECT nama,perusahaan,jabatan FROM scan_tamu WHERE acara=? AND kode=? FOR UPDATE');$q->execute([$event,$c]);$current=$q->fetch();
         if (!$current) throw new InvalidArgumentException('Undangan tidak ditemukan dalam acara ini.');
         if ($current!==$original && $current!==$values) {
@@ -71,7 +95,8 @@ try {
     }
     if ($action==='preview_import' || $action==='import') {
         $source=uploaded_csv();
-        if ($action==='import') $db->beginTransaction();
+        if ($action==='import') {$db->beginTransaction();require_event_write($db,$event);}
+        elseif ($eventData['status']==='selesai') throw new DomainException('Acara sudah selesai. Impor tidak tersedia.');
         $analysis=analyze_csv($db,$event,$source,$action==='import');
         if ($action==='preview_import') {
             unset($analysis['rows']);reply($analysis+['event'=>$event,'event_name'=>$eventData['nama']]);
@@ -106,9 +131,10 @@ try {
         if (strlen($raw)>4096) throw new InvalidArgumentException('Permintaan terlalu besar.');
         $b=json_decode($raw,true,16,JSON_THROW_ON_ERROR);
         if (!is_array($b) || !is_string($b['tablet']??null) || !preg_match('/\AT0[1-6]\z/',$b['tablet'])) throw new InvalidArgumentException('Pilih tablet T01–T06.');
-        $c=code($b['code']??'');guest($db,$event,$c);
+        $c=code($b['code']??'');$db->beginTransaction();require_event_write($db,$event,true);guest($db,$event,$c);
         $q=$db->prepare('INSERT INTO scan_catatan(acara,kode,tablet,dicatat_utc) VALUES (?,?,?,UTC_TIMESTAMP(3)) ON DUPLICATE KEY UPDATE tablet=VALUES(tablet)');$q->execute([$event,$c,$b['tablet']]);
-        reply(['message'=>$q->rowCount()===1?'Kehadiran berhasil dicatat.':'Tamu ini sudah dicatat pada tablet ini.','duplicate'=>$q->rowCount()!==1]);
+        $duplicate=$q->rowCount()!==1;$db->commit();
+        reply(['message'=>!$duplicate?'Kehadiran berhasil dicatat.':'Tamu ini sudah dicatat pada tablet ini.','duplicate'=>$duplicate]);
     }
     // Filter and search share the exact same query for the admin table and CSV.
     $filter=$_GET['filter']??'present';
@@ -146,6 +172,8 @@ try {
     $q=$db->prepare('SELECT tablet,COUNT(*) AS jumlah FROM scan_catatan WHERE acara=? GROUP BY tablet');$q->execute([$event]);$tablets=array_fill_keys(['T01','T02','T03','T04','T05','T06'],0);
     foreach ($q as $r) $tablets[$r['tablet']]=(int)$r['jumlah'];
     reply(['event'=>$event,'event_info'=>$eventData,'guests'=>$guests,'filter'=>$filter,'query'=>$search,'total'=>$total,'present'=>count($arrivals),'tablets'=>$tablets,'arrivals'=>$arrivals,'server_utc'=>gmdate('Y-m-d\TH:i:s\Z')]);
+} catch (DomainException $e) {
+    if (isset($db) && $db->inTransaction()) $db->rollBack();reply(['error'=>$e->getMessage()],409);
 } catch (InvalidArgumentException|JsonException $e) {
     if (isset($db) && $db->inTransaction()) $db->rollBack();reply(['error'=>$e->getMessage()],422);
 } catch (Throwable $e) {
