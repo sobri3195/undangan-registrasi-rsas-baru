@@ -1,27 +1,23 @@
-# Hasil pengujian
+# Hasil pengujian versi dua tampilan
 
-Dijalankan 17 November 2026 pada PHP CLI 8.2.32, Node 24.22.1, dan Chromium headless lokal. Tidak ada deployment produksi dalam pengujian ini.
+Diuji 17 November 2026 dengan PHP 8.2 + PDO MySQL, MariaDB 10.11.19 / MySQL 8.0.46, dan Chromium headless. Tidak ada deployment produksi dalam pengujian ini.
 
 | Pemeriksaan | Hasil |
 | --- | --- |
-| `php -l public/index.php` | Lulus, tidak ada kesalahan sintaks |
-| `npm test` | 8 pengujian lulus, 0 gagal / dilewati |
-| Empat rute PHP, rute array / tidak dikenal | HTTP 200 pada rute valid; 404 pada rute tidak valid |
-| Host palsu | Tautan undangan tetap memakai APP_BASE_URL |
-| CSP dan Permissions-Policy | Header tersedia; kamera diizinkan hanya pada Petugas |
-| QR → decoder lokal → konfirmasi → IndexedDB | Lulus dengan stream video dari canvas QR sintetis |
-| Mulai Kamera hanya setelah tombol, tanpa audio | Lulus dengan mock getUserMedia, 1 pemanggilan sesudah tombol |
-| PNG QR undangan dan check-in | Unduhan berhasil di Chromium |
-| CSV, JSON, RSVP, transaksi IndexedDB | Lulus, termasuk penolakan data bertentangan |
-| Dua tablet T01/T02 mencatat slot sama | Dua log dipertahankan, satu hadir unik; impor ulang idempoten |
-| Offline Chromium | Setelah persiapan cache, jaringan dimatikan melalui Playwright; navigasi, reload, pencarian, simulasi pindai, JSON/CSV/PNG dan merge lulus |
-| Kamera fisik Chrome Android | Belum diuji; perlu perangkat nyata melalui HTTPS |
-| Kamera fisik Safari iPad | Belum diuji; perlu perangkat nyata melalui HTTPS |
-| DNS, sertifikat, redirect Apache/cPanel produksi | Belum diuji; perlu akses hosting dan pemasangan |
-| Mode pesawat fisik enam tablet | Belum diuji; wajib checklist sebelum acara |
+| `php -l` seluruh 3 berkas PHP aktif | Lulus |
+| Schema dua tabel InnoDB/utf8mb4 | Lulus MySQL dan MariaDB |
+| Enam sesi browser independen T01–T06 | Masing-masing memindai QR sintetis lalu mengonfirmasi nama |
+| Scan sebelum Konfirmasi Hadir | Belum ada kehadiran yang disimpan |
+| Satu kode di keenam tablet | Satu tamu unik, sumber T01–T06 tersimpan |
+| Dua slot PT berbeda | Dua tamu dihitung |
+| Admin otomatis | Nama, asal tablet dan total diperbarui tanpa refresh manual |
+| Impor CSV dan konflik identitas | Impor valid berhasil; konflik ditolak tanpa penambahan sebagian |
+| Koneksi putus saat konfirmasi | Gagal dengan pesan, retry aman setelah jaringan pulih |
+| Ekspor CSV, validasi QR, CSRF, rute, tata letak tablet | Lulus |
+| `npm test` | 9 pengujian lulus, termasuk utilitas SQL lama yang dipertahankan |
+| Kamera fisik Chrome Android / Safari iPad | Belum diuji; perlu perangkat sebenarnya melalui HTTPS |
+| DNS / TLS / redirect cPanel produksi | Belum diuji; menunggu pemasangan pada hosting |
 
-Uji browser: `tests/browser.mjs`. Uji model: `tests/core.test.js`. Pengujian browser menggunakan server PHP lokal HTTP pada loopback yang dipercaya browser untuk service worker. Itu bukan bukti TLS produksi atau kompatibilitas Safari/Android. Kamera canvas menguji alur pemrosesan frame dan konfirmasi, bukan fokus, izin, atau kamera belakang perangkat fisik.
+`tests/browser.mjs` membutuhkan server PHP dengan database uji KOSONG dan schema `sql/05_scan_sederhana.sql`. Tes mengimpor data sintetis dan menulis absensi; jangan jalankan pada database produksi. Contoh: `PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8091 node tests/browser.mjs`. Browser memakai kamera canvas simulasi untuk menguji pengolahan frame QR, bukan kamera/izin/fokus perangkat fisik.
 
-## Kriteria penerimaan perangkat fisik
-
-Pada Chrome Android dan Safari iPad: buka HTTPS dengan sertifikat valid, impor master demo, simpan ID/acara, persiapkan offline. Tekan Mulai Kamera, izinkan kamera belakang, pindai QR PT001, pastikan belum hadir sebelum Catat Hadir. Catat dari dua tablet, ekspor JSON keduanya, gabungkan T05: satu hadir. Ulangi pada PT002: total dua hadir. Coba izin ditolak dan pencarian manual. Aktifkan mode pesawat, reload, pindai dan ekspor PNG/JSON/CSV; buka berkas untuk memverifikasi isinya. Simpan hasil perangkat/browser/versi di catatan operasional panitia.
+Sebelum acara: buka situs HTTPS dari enam tablet, impor contoh CSV di Admin, tetapkan T01–T06, periksa identitas dan konfirmasi. Pastikan Admin menampilkan nama/sumber tablet serta total unik. Uji izin kamera ditolak, pencarian manual, koneksi terputus, retry, dan unduhan CSV. Versi ini memerlukan internet; tidak menyediakan pencatatan offline. Shell offline lama dibersihkan, tetapi IndexedDB lama tidak dihapus otomatis.

@@ -1,4 +1,5 @@
-event,code,name,company,position,category,token
-RSAS-2026,VIP001,Nama Tamu,Instansi Contoh,Jabatan Contoh,VIP,
-RSAS-2026,PT001,Perwakilan Satu,PT Contoh Sintetis,Direktur,mitra PT,
-RSAS-2026,PT002,Perwakilan Dua,PT Contoh Sintetis,Manajer,mitra PT,
+kode,nama,perusahaan,jabatan
+VIP001,Dr. Raka Sintetis,Instansi Contoh,Pimpinan
+PT001,Dian Contoh,PT Mitra Sintetis,Direktur
+PT002,Sari Contoh,PT Mitra Sintetis,Manajer
+UM001,Bima Contoh,,Tamu umum

@@ -1,31 +1,13 @@
-# Panduan enam tablet
+# Enam tablet, satu daftar
 
-| Tablet | Meja |
-| --- | --- |
-| T01 | VIP |
-| T02 | Reguler |
-| T03 | Reguler dan mitra PT |
-| T04 | Bantuan |
-| T05 | Rekap |
-| T06 | Cadangan |
+Semua T01–T06 dapat melakukan scanning dengan fungsi sama. Tidak ada tablet yang diwajibkan khusus untuk rekap; Admin dapat dibuka pada komputer atau tablet terpisah.
 
-Pembagian meja bersifat operasional; setiap tablet tetap dapat mencari semua kategori untuk membantu antrean.
+1. Di Admin, impor CSV sekali. Periksa jumlah undangan dan siapkan QR per kode melalui pencarian undangan.
+2. Di masing-masing tablet buka halaman Scan lewat HTTPS, pilih ID unik T01, T02, T03, T04, T05 atau T06. Pilihan disimpan di browser. Semua tablet perlu koneksi internet ke server yang sama.
+3. Tekan Mulai Kamera → izinkan kamera → arahkan QR. Lihat nama yang datang, perusahaan, jabatan dan kode. Pastikan sesuai, lalu tekan **Konfirmasi Hadir**. Tombol Batal tidak menyimpan data.
+4. Bila kamera gagal, gunakan Cari manual. Nama/perusahaan/jabatan/kode bisa dicari (minimal dua karakter), pilih nama, lalu konfirmasi.
+5. Buka Admin untuk melihat tamu dari keenam tablet. Daftar otomatis diperbarui setiap 3 detik saat halaman aktif. Tamu yang tercatat di beberapa tablet ditampilkan sekali dengan daftar tablet pencatatnya.
+6. Jika muncul kegagalan koneksi, jangan menganggap check-in berhasil. Sambungkan internet lalu tekan konfirmasi lagi. Pengulangan dari tablet sama tidak menggandakan data.
+7. Akhir sesi: Admin → Unduh CSV Kehadiran. Backup database melalui cPanel/phpMyAdmin. Tidak diperlukan ekspor dan penggabungan JSON tablet.
 
-## Sebelum acara
-
-1. Koordinator mengimpor CSV satu kali. Perusahaan dua slot harus memiliki dua kode/token. Simpan JSON master; distribusikan file yang sama melalui media panitia. Jangan beri JSON master kepada tamu.
-2. Setiap tablet membuka situs HTTPS di Chrome Android / Safari iPad, impor master dari Koordinator atau Petugas, simpan ID tablet dan kode acara. Periksa jumlah slot. Sinkronkan jam, isi daya, matikan mode privat, sediakan ruang penyimpanan.
-3. Tekan Siapkan halaman offline dan tunggu konfirmasi. Buka kembali halaman Petugas. Izinkan kamera setelah Mulai Kamera. Tes QR sintetis dan pencarian nama/perusahaan/jabatan/kode. Tekan Hentikan Kamera selesai menguji.
-4. Aktifkan mode pesawat dan tutup lalu buka kembali halaman. Pindai QR, konfirmasi Catat Hadir, simpan PNG dari Tamu, ekspor JSON dan CSV. Pastikan file benar-benar tersimpan di Files/Downloads (Safari dapat menampilkan dialog berbagi). Kembalikan online setelah uji. Gunakan acara khusus demo agar data uji tidak tercampur acara nyata.
-
-## Saat penerimaan
-
-Pilih Petugas → Mulai Kamera → arahkan QR → periksa identitas → Catat Hadir. Jika izin ditolak/tidak fokus, hentikan kamera, periksa izin browser, bersihkan lensa, lalu coba lagi atau cari manual. Jika dua perwakilan PT datang bersama, pindai dua QR berbeda. RSVP hadir belum berarti datang. Jangan mengubah kode acara saat antrean berlangsung.
-
-Tablet offline tidak mengetahui catatan tablet lain. Jika tamu berpindah meja, tanyakan apakah sudah check-in. Rekap tetap menghitung satu hadir per slot setelah penggabungan. Backup JSON setiap pergantian petugas dan berkala; pindahkan salinan aman ke T05. Tutup kamera saat berpindah aplikasi untuk menghemat baterai.
-
-## Rekap T05
-
-Simpan backup T05 sebelum merge. Koordinator → gabungkan JSON T01–T06. Berkas lama boleh diimpor ulang, tidak menambah log sama. Konflik daftar/token/ID log ditolak; jangan mengedit JSON sembarangan agar lolos. Cocokkan sumber dengan master. Ekspor backup gabungan dan laporan CSV acara terpilih. Contoh demo T01 dan T02 masing-masing mencatat slot sama: hasil satu hadir, dua catatan, dua tablet. Jika ada slot kedua, total naik menjadi dua.
-
-Catat RSVP dari pesan pada T05 secara konsisten. Hindari mengubah RSVP di banyak tablet agar jam perangkat tidak menentukan jawaban yang tidak diinginkan. Laporan mencantumkan waktu UTC; konversi ke zona lokal bila diperlukan. Simpan laporan dan backup di perangkat/media panitia sesuai retensi. Untuk menghapus, backup dahulu lalu hapus data situs melalui pengaturan browser pada setiap tablet. Tidak ada pemulihan dari server.
+Sebelum acara uji pada Chrome Android dan Safari iPad yang sebenarnya, lewat HTTPS, memakai data sintetis. Periksa izin kamera belakang, fokus QR, pemilihan ID tablet, tampilan nama, konfirmasi, dan daftar Admin. Untuk dua perwakilan PT, siapkan dua slot dengan dua kode. Jangan memakai satu QR perusahaan untuk dua orang.
