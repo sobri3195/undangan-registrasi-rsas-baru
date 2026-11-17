@@ -1,3 +1,5 @@
+> Paket arsip untuk versi sebelumnya. Aplikasi dua tampilan sekarang memakai `05_scan_sederhana.sql` dan database bersama; lihat README utama. Berkas 01–04 bukan schema runtime baru.
+
 # Paket SQL pendamping Registrasi Undangan RSAS
 
 Untuk aplikasi `https://undanganregistrasirsas.puskesau.com/`. Paket ini adalah arsip dan pelaporan manual melalui phpMyAdmin, bukan perubahan alur check-in aplikasi. PHP/browser tetap berjalan tanpa database server, login, endpoint unggah, atau kredensial MySQL dalam JavaScript. Data baru masuk database ketika panitia mengimpor berkas SQL secara sengaja. Simpan SQL/JSON dan hasil laporan hanya pada media panitia; **jangan unggah folder sql/ atau backup ke document root**.
