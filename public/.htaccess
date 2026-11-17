@@ -1,6 +1,8 @@
 Options -Indexes
 DirectoryIndex index.php
 RewriteEngine On
+# Private configuration for the single-folder hosting bundle.
+RewriteRule ^private(?:/|$) - [F,L]
 # Fixed destination: do not derive redirects from request Host headers.
 RewriteCond %{HTTPS} !=on
 RewriteRule ^ https://undanganregistrasirsas.puskesau.com%{REQUEST_URI} [R=301,L,NE]
