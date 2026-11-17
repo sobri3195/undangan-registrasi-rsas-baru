@@ -8,6 +8,24 @@
 6. `.htaccess` memerlukan Apache mod_rewrite/AllowOverride. Redirect menggunakan domain HTTPS tetap. Jika reverse proxy menyebabkan loop, sesuaikan TLS origin pada penyedia atau minta redirect ditangani edge; jangan mengambil domain dari X-Forwarded-Host. Pastikan PHP dijalankan, bukan diunduh sebagai teks.
 7. Buka `/index.php?page=admin`, impor CSV, lalu uji `/index.php?page=scan` pada keenam tablet. API/PHP mengirim `Cache-Control: no-store`; bypass cache CDN untuk PHP dan API. Data harus tampil di Admin tanpa pemindahan file.
 
-Pemasangan DNS/TLS dan database produksi belum dijalankan dari lingkungan pengembangan ini. Halaman tetap tanpa login sesuai permintaan awal.
+Pemasangan DNS/TLS dan database produksi belum dijalankan dari lingkungan pengembangan ini. Data dan fungsi panitia kini memerlukan PIN.
 
 Pembaruan status acara pada instalasi lama memerlukan `sql/08_status_acara.sql` sebelum kode baru digunakan. Impor di database aplikasi yang sama, dengan backup lebih dahulu. Untuk instalasi baru dari ZIP, SQL gabungan sudah mencakup status. Setelah membuat acara nyata, buka penerimaan melalui Admin → Status acara → Dibuka → Terapkan; tutup dengan Selesai setelah penerimaan berakhir.
+
+
+AKSES PANITIA (PERBAIKAN P1):
+- Isi ADMIN_PIN dan STAFF_PIN pada file setting database yang sama. Pada paket
+  satu folder, tetap hanya private/database.php yang perlu diatur.
+- Gunakan dua PIN acak berbeda, masing-masing 8-12 digit; tidak ada PIN bawaan.
+- Masuk di Scan dengan PIN Petugas; masuk di Admin dengan PIN Admin.
+- Petugas tidak dapat mengubah daftar/status acara, membuat QR atau mengunduh laporan.
+- Data undangan, endpoint API dan halaman cetak tidak tersedia tanpa akses.
+- Sesi berlaku 12 jam; tekan Keluar setelah selesai. Mengganti PIN mencabut
+  sesi peran tersebut. Aplikasi tidak menyimpan PIN di cookie/localStorage atau memasukkannya ke SQL.
+- Instalasi baru: satu SQL paket sudah mencakup tabel pembatas percobaan.
+- Upgrade: backup, impor sql/10_akses_panitia.sql dari repositori, pertahankan
+  konfigurasi database yang sudah terisi, tambahkan kedua PIN, unggah kode baru.
+  Jangan menimpa konfigurasi berisi kredensial dengan template kosong.
+- Lima kegagalan per alamat/peran dalam 5 menit membatasi login sementara;
+  batas global tambahan 50 kegagalan/peran per menit. Cookie baru tidak meresetnya.
+- Gunakan HTTPS. Uji Android/iPad dan jaringan lokasi sebelum penerimaan.

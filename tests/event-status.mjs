@@ -1,3 +1,4 @@
+import {openPage} from './access-helper.mjs';
 // Disposable database seeded with 07_shared_hosting_dummy.sql. Uses Docker CLI for one lock race.
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
@@ -6,14 +7,14 @@ const origin=process.env.TEST_ORIGIN||'http://127.0.0.1:8107',container=process.
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 try{
  const admin=await browser.newPage(),tablet=await browser.newPage({viewport:{width:1024,height:768}}),errors=[];admin.on('pageerror',e=>errors.push(e.message));tablet.on('pageerror',e=>errors.push(e.message));admin.on('dialog',d=>d.accept());
- const A='DEMO-RSAS-2026',B='DEMO-MITRA-2027';await admin.goto(origin+'/index.php?page=admin');await admin.waitForFunction(()=>!document.getElementById('event-select').disabled);await admin.selectOption('#event-select',A);await admin.waitForFunction(()=>document.getElementById('present').textContent==='5');
+ const A='DEMO-RSAS-2026',B='DEMO-MITRA-2027';await openPage(admin,origin+'/index.php?page=admin');await admin.waitForFunction(()=>!document.getElementById('event-select').disabled);await admin.selectOption('#event-select',A);await admin.waitForFunction(()=>document.getElementById('present').textContent==='5');
  const csrf=await admin.locator('meta[name=csrf]').getAttribute('content'),req=admin.request;
  const post=(action,data,event=A)=>req.post(origin+'/api.php?'+new URLSearchParams({action,event}),{headers:{'X-CSRF-Token':csrf},data});
  const get=(action,event=A,params={})=>req.get(origin+'/api.php?'+new URLSearchParams({action,event,...params}));
  const state=async(event=A)=>(await (await get('event_state',event)).json()).event_info.status;
  const current=await (await get('invitation',A,{code:'PT001'})).json();
  async function uiStatus(status){await admin.selectOption('#status-select',status);await admin.locator('#apply-status').click();await admin.waitForFunction(s=>document.getElementById('event-state').dataset.state===s,status);}
- await tablet.goto(origin+'/');await tablet.waitForFunction(()=>!document.getElementById('event-select').disabled);await tablet.selectOption('#event-select',A);await tablet.selectOption('#tablet','T03');await tablet.waitForFunction(()=>!document.getElementById('start').disabled);
+ await openPage(tablet,origin+'/');await tablet.waitForFunction(()=>!document.getElementById('event-select').disabled);await tablet.selectOption('#event-select',A);await tablet.selectOption('#tablet','T03');await tablet.waitForFunction(()=>!document.getElementById('start').disabled);
  await uiStatus('persiapan');await tablet.waitForFunction(()=>document.getElementById('event-state').dataset.state==='persiapan'&&document.getElementById('start').disabled);
  assert.equal((await post('checkin',{code:'VIP002',tablet:'T06'})).status(),409);
  const csv='kode,nama,perusahaan,jabatan\nNEW001,Tamu Baru,PT,Staf\n';

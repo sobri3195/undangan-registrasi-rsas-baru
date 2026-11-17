@@ -2,6 +2,7 @@
 // Included only by the Admin route. No guest/token/attendance writes are performed.
 declare(strict_types=1);
 if (!defined('APP_BASE_URL')) {http_response_code(404);exit;}
+access_guard('admin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 $error='';$eventInfo=null;$guests=[];$total=0;$batch=1;$batchCount=1;$limit=20;
 try {
@@ -26,7 +27,7 @@ function print_batch_url(string $event,int $batch): string {
     return APP_BASE_URL.'/index.php?'.http_build_query(['page'=>'admin','print'=>'qr','event'=>$event,'batch'=>$batch],'','&',PHP_QUERY_RFC3986);
 }
 ?><!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cetak QR Undangan · <?= esc($eventInfo['nama']??'RSAS') ?></title><link rel="icon" href="/assets/logo-rsas.png"><link rel="stylesheet" href="/assets/print-qr.css"><script defer src="/assets/vendor/qrcode.js"></script><script defer src="/assets/vendor/qrcode_UTF8.js"></script><script defer src="/assets/print-qr.js"></script></head><body data-print-ready="false">
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cetak QR Undangan · <?= esc($eventInfo['nama']??'RSAS') ?></title><link rel="icon" href="/assets/logo-rsas.png"><link rel="stylesheet" href="/assets/print-qr.css"><script defer src="/assets/vendor/qrcode.js"></script><script defer src="/assets/vendor/qrcode_UTF8.js"></script><script defer src="/assets/print-qr.js"></script><script defer src="/assets/access.js"></script></head><body data-print-ready="false">
 <div class="print-toolbar"><a href="<?= esc(APP_BASE_URL) ?>/index.php?page=admin">← Kembali ke Admin</a><button id="print-qr" disabled>Cetak / Simpan PDF</button></div>
 <main><header class="print-heading"><h1>Cetak QR undangan</h1><p><?= esc($eventInfo['nama']??'') ?></p><?php if(!$error): ?><p class="batch-info">Batch <?= $batch ?> dari <?= $batchCount ?> · <?= count($guests) ?> kartu dari <?= $total ?> undangan</p><?php endif ?></header>
 <?php if($error): ?><p class="error" role="alert"><?= esc($error) ?></p><?php else: ?>

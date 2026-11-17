@@ -5,7 +5,7 @@ PHP Native, MySQL, HTML/CSS dan JavaScript Vanilla. Tidak ada framework atau pro
 1. **Scan Tablet** (`/` atau `/index.php?page=scan`): pilih T01–T06, tekan Mulai Kamera, pindai QR, lihat nama/perusahaan/jabatan, lalu tekan **Konfirmasi Hadir**. Pencarian manual tersedia jika kamera gagal.
 2. **Admin** (`/index.php?page=admin`): impor CSV satu kali, lihat nama yang sudah datang beserta tablet pencatat, jumlah undangan/hadir/belum hadir, dan unduh CSV. Daftar diperbarui setiap 3 detik saat halaman aktif. Admin juga dapat membuat QR dari pencarian undangan.
 
-Semua tablet menggunakan daftar dan kehadiran di **database server yang sama**. Tidak perlu menyalin JSON antarperangkat. Semua halaman terbuka tanpa login sesuai permintaan awal. Koneksi internet diperlukan; jika penyimpanan gagal, aplikasi menampilkan pesan dan tidak mengklaim tamu sudah dicatat. Konfirmasi bisa dicoba lagi setelah koneksi pulih.
+Semua tablet menggunakan daftar dan kehadiran di **database server yang sama**. Tidak perlu menyalin JSON antarperangkat. Akses data kini memerlukan PIN panitia: Petugas untuk scanning, Admin untuk pengelolaan dan laporan. Koneksi internet diperlukan; jika penyimpanan gagal, aplikasi menampilkan pesan dan tidak mengklaim tamu sudah dicatat. Konfirmasi bisa dicoba lagi setelah koneksi pulih.
 
 ## Paket siap unggah — daftar 80 tamu
 
@@ -13,8 +13,8 @@ Gunakan langsung folder **[paket-hosting/hosting-subdomain](paket-hosting/hostin
 
 1. Buat/pilih database dan user di cPanel, hubungkan user ke database, lalu impor satu SQL tersebut lewat phpMyAdmin.
 2. Unggah **isi** `hosting-subdomain/` ke document root subdomain; jangan membuat tingkat URL tambahan.
-3. Edit **satu file** `private/database.php`: isi host, port, nama database, user dan password yang diberikan hosting. Zona waktu sudah WIB. Jangan menaruh SQL di document root.
-4. Buka Admin, periksa acara RSAS-20261119: 80 undangan, 0 hadir, status Persiapan. Periksa identitas penerima lalu buka status penerimaan saat siap.
+3. Edit **satu file** `private/database.php`: isi host, port, nama database, user dan password yang diberikan hosting, serta ADMIN_PIN dan STAFF_PIN (8–12 digit acak, berbeda). Zona waktu sudah WIB. Jangan menaruh SQL di document root.
+4. Masuk dengan PIN Admin, periksa acara RSAS-20261119: 80 undangan, 0 hadir, status Persiapan. Periksa identitas penerima lalu buka status penerimaan saat siap.
 
 Panduan singkat ada dalam `PANDUAN.txt` di folder unggahan. Folder siap unggah berisi salinan kode rilis, bukan data produksi. Untuk pemeliharaan kode gunakan `public/`; perbarui paket lewat builder dan cocokkan berkas sebelum rilis. Pertahankan file konfigurasi yang sudah Anda isi ketika melakukan upgrade.
 
@@ -25,7 +25,7 @@ Untuk pemasangan praktis, gunakan paket siap unggah di atas. Langkah berikut unt
 1. Buat/pilih database MySQL 8.0.16+ atau MariaDB 10.11+ dan user melalui cPanel. Hubungkan user ke database. Aktifkan PHP 8.2+ dengan PDO MySQL (`pdo_mysql`).
 2. Pilih database tersebut di phpMyAdmin, impor **[sql/05_scan_sederhana.sql](sql/05_scan_sederhana.sql)** lalu **[sql/06_multi_acara.sql](sql/06_multi_acara.sql)**. Tiga tabel aktif: `scan_acara`, `scan_tamu` dan `scan_catatan`. Tidak perlu mengimpor schema/seed/paket SQL pendamping versi lama.
 3. Unggah **isi `public/`** termasuk `.htaccess` ke document root subdomain `undanganregistrasirsas.puskesau.com`.
-4. Salin `config.local.php.example` menjadi `config.local.php` **satu tingkat di atas document root**. Isi nama database/user dengan prefix cPanel, password, host database hosting yang sebenarnya. Acara dipilih melalui antarmuka. Contoh jika document root `/home/akun/undangan/`, lokasi konfigurasi `/home/akun/config.local.php`. Jangan letakkan konfigurasi dalam folder web. Alternatif: variabel server `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`.
+4. Salin `config.local.php.example` menjadi `config.local.php` **satu tingkat di atas document root**. Isi nama database/user dengan prefix cPanel, password, host database hosting yang sebenarnya, serta ADMIN_PIN dan STAFF_PIN yang berbeda. Acara dipilih melalui antarmuka. Contoh jika document root `/home/akun/undangan/`, lokasi konfigurasi `/home/akun/config.local.php`. Jangan letakkan konfigurasi dalam folder web. Alternatif: variabel server `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`.
 5. Pastikan DNS subdomain mengarah ke server hosting yang diberikan penyedia dan sertifikat TLS valid. `.htaccess` mengalihkan HTTP ke domain HTTPS tetap. Lihat [cPanel](docs/CPANEL.md).
 6. Buka Admin → impor `public/template.csv`. Buka Scan di keenam tablet → pilih ID masing-masing → uji QR dan konfirmasi. Admin harus melihat nama dan tablet pencatat.
 
@@ -91,7 +91,7 @@ Daftar mengikuti perubahan kehadiran setiap 3 detik. Kode yang tercatat beberapa
 
 Klik **Edit** pada tabel Admin (termasuk filter Semua/Belum Datang), atau cari kode pada bagian pencarian undangan lalu klik **Edit**. Formulir memperbaiki nama, perusahaan/instansi, dan jabatan pada slot acara terpilih. Kode undangan, token QR, waktu hadir dan tablet pencatat tetap dipertahankan. Identitas baru tampil di daftar, ekspor CSV dan hasil pemindaian/pencarian berikutnya. Ini untuk koreksi identitas, bukan memindahkan undangan kepada orang lain.
 
-Nama wajib diisi; setiap kolom maksimal 200 karakter. Jika operator lain sudah memperbarui identitas setelah formulir dibuka, penyimpanan ditolak dengan pesan konflik: tutup lalu buka ulang Edit untuk membaca data terbaru. Saat koneksi gagal, formulir tetap terbuka dan dapat dicoba lagi. Menyimpan ulang perubahan yang sama aman. Akses mengikuti Admin yang tersedia saat ini, tanpa login. Tidak diperlukan perubahan schema database.
+Nama wajib diisi; setiap kolom maksimal 200 karakter. Jika operator lain sudah memperbarui identitas setelah formulir dibuka, penyimpanan ditolak dengan pesan konflik: tutup lalu buka ulang Edit untuk membaca data terbaru. Saat koneksi gagal, formulir tetap terbuka dan dapat dicoba lagi. Menyimpan ulang perubahan yang sama aman. Akses memerlukan PIN Admin. Tidak diperlukan perubahan schema database.
 
 Setelah mengoreksi identitas, sesuaikan CSV master panitia juga. CSV lama dengan identitas berbeda tetap ditolak saat impor agar tidak mengembalikan koreksi secara diam-diam.
 
@@ -142,3 +142,22 @@ Daftar dari pengguna tersedia pada `data/undangan-rsas-20261119.csv`, dengan kod
 Bangun paket khusus: `python3 tools/build_shared_hosting.py /workspace/rsas-acara-19-november-2026 --event-rsas`. ZIP tetap berisi satu folder `hosting-subdomain/` dan satu SQL `rsas_acara_19_november_2026.sql`. SQL gabungan sudah mencakup schema/status dan daftar acara sebenarnya, **tanpa data demo, RSVP, atau absensi awal**. Token dibuat acak di database, bukan disertakan nilainya dalam SQL. Status awal **Persiapan**; acara berlangsung Kamis, 19 November 2026, mulai 09.00 WIB. Jam dicantumkan pada informasi lokasi acara dan kartu cetak.
 
 CSV di paket ini berada dalam `private/daftar-undangan.csv`, bukan folder publik. Masukkan konfigurasi database di `private/database.php` setelah mengunggah folder. Setelah SQL berhasil, Admin akan menampilkan acara `RSAS-20261119` dengan 80 undangan dan 0 hadir. Periksa identitas sebelum mencetak empat batch (20/20/20/20). Angka progres aplikasi memakai seluruh slot acara; angka itu berbeda dari persentase TOR resmi dengan penyebut tetap 73 pada paket SQL lama. Impor ulang SQL tidak menimpa koreksi/status/token yang sudah tersimpan dan tidak menghapus slot tambahan yang mungkin dibuat panitia.
+
+
+## Perbaikan P1: akses PIN panitia
+
+Tidak ada PIN bawaan dan tidak ada mode akses terbuka sebagai fallback. Isi **ADMIN_PIN** dan **STAFF_PIN** dengan dua PIN acak 8–12 digit yang berbeda pada **file konfigurasi yang sama** dengan database. Nilai PIN konfigurasi tetap pada server dan tidak disertakan dalam HTML/JavaScript, QR, SQL atau localStorage. PIN yang diketik pada form dikirim melalui POST HTTPS saat masuk. Gunakan HTTPS dan jangan mengunggah konfigurasi yang sudah diisi ke Git.
+
+| Akses | Fungsi |
+| --- | --- |
+| Belum masuk | Halaman PIN; data tamu/API/QR/CSV tidak tersedia |
+| Petugas | Daftar acara, status, pencarian/identitas tamu, konfirmasi hadir T01–T06 |
+| Admin | Semua fungsi Petugas, impor/edit, pembuatan acara, status acara, QR/print dan laporan/CSV |
+
+Petugas memasukkan PIN pada halaman Scan. Admin memasukkan PIN pada halaman Admin; akses Admin juga dapat memakai halaman Scan. Sesi berakhir setelah 12 jam, logout, atau pergantian PIN peran tersebut. Masing-masing tablet menyimpan sesi cookie HttpOnly/SameSite, bukan PIN. PIN Petugas adalah akses bersama: label T01–T06 tetap dipilih operator dan bukan identitas perangkat terdaftar.
+
+**Upgrade instalasi yang sudah ada:** backup database dan konfigurasi; impor **sql/10_akses_panitia.sql** pada database yang sama; pertahankan konfigurasi database Anda, tambahkan kedua PIN, lalu unggah kode terbaru. Tidak perlu mengimpor ulang daftar 80 tamu. SQL gabungan paket baru sudah mencakup tabel pembatas percobaan. Impor migrasi aman diulang dan tidak mengubah token/scan.
+
+Pembatas percobaan disimpan di MySQL, terpisah dari cookie: 5 kegagalan per alamat koneksi/peran dalam 5 menit, ditambah 50 kegagalan global/peran per menit. Setelah dibatasi, tunggu waktu Retry-After. Permintaan memakai REMOTE_ADDR dari server dan mengabaikan X-Forwarded-For. Hosting di balik proxy dapat mengelompokkan beberapa perangkat pada satu alamat; hindari mencoba PIN berulang. Koneksi/schema pembatas yang gagal membuat login ditolak.
+
+Pengujian perangkat/hosting sebelum acara: lihat [verifikasi P1](docs/P1_VERIFIKASI_PRODUKSI.md). Uji browser menggunakan TEST_ADMIN_PIN dan TEST_STAFF_PIN yang hanya berlaku pada server uji; tes lama kini masuk melalui form PIN sebelum memeriksa fitur.

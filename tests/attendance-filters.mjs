@@ -1,3 +1,4 @@
+import {openPage} from './access-helper.mjs';
 // Disposable DB seeded with sql/07_shared_hosting_dummy.sql; this test records one demo check-in.
 // PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8098 node tests/attendance-filters.mjs
 import assert from 'node:assert/strict';
@@ -6,7 +7,7 @@ const origin=process.env.TEST_ORIGIN||'http://127.0.0.1:8098';
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 try{
  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto(origin+'/index.php?page=admin');await page.waitForFunction(()=>!document.getElementById('event-select').disabled);await page.selectOption('#event-select','DEMO-RSAS-2026');
+ await openPage(page,origin+'/index.php?page=admin');await page.waitForFunction(()=>!document.getElementById('event-select').disabled);await page.selectOption('#event-select','DEMO-RSAS-2026');
  const request=page.request,A='DEMO-RSAS-2026',B='DEMO-MITRA-2027';
  async function status(filter,q='',event=A){const r=await request.get(origin+'/api.php?'+new URLSearchParams({action:'status',event,filter,q}));assert.equal(r.status(),200);return r.json();}
  async function csv(filter,q='',event=A){const r=await request.get(origin+'/api.php?'+new URLSearchParams({action:'export',event,filter,q}));assert.equal(r.status(),200);return r.text();}

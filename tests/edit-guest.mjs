@@ -1,3 +1,4 @@
+import {openPage} from './access-helper.mjs';
 // Disposable database seeded with sql/07_shared_hosting_dummy.sql; edits synthetic identities.
 // PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs TEST_ORIGIN=http://127.0.0.1:8101 node tests/edit-guest.mjs
 import assert from 'node:assert/strict';
@@ -5,7 +6,7 @@ const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const origin=process.env.TEST_ORIGIN||'http://127.0.0.1:8101',A='DEMO-RSAS-2026',B='DEMO-MITRA-2027';
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 try{
- const context=await browser.newContext({viewport:{width:1280,height:900}}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(origin+'/index.php?page=admin');await page.waitForFunction(()=>!document.getElementById('event-select').disabled);await page.selectOption('#event-select',A);await page.waitForFunction(()=>document.getElementById('present').textContent==='5');
+ const context=await browser.newContext({viewport:{width:1280,height:900}}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await openPage(page,origin+'/index.php?page=admin');await page.waitForFunction(()=>!document.getElementById('event-select').disabled);await page.selectOption('#event-select',A);await page.waitForFunction(()=>document.getElementById('present').textContent==='5');
  const request=page.request,csrf=await page.locator('meta[name=csrf]').getAttribute('content');
  const info=async(event,code)=>{const r=await request.get(origin+'/api.php?'+new URLSearchParams({action:'invitation',event,code}));assert.equal(r.status(),200);return r.json();};
  const initial=await info(A,'PT001'),other=await info(B,'PT001');
@@ -17,7 +18,7 @@ try{
  let saved=await info(A,'PT001');assert.equal(saved.url,initial.url);assert.deepEqual(saved.records,initial.records);assert.equal(saved.guest.perusahaan,'PT Koreksi');assert.deepEqual((await info(B,'PT001')),other);
  const csv=await request.get(`${origin}/api.php?action=export&event=${A}&filter=present`);assert.match(await csv.text(),/Dian Koreksi/);assert.doesNotMatch(await csv.text(),/Dian Sintetis/);
  // The previously issued QR still identifies the corrected name in the scanner.
- const scanner=await browser.newPage();await scanner.goto(origin+'/');await scanner.waitForFunction(()=>!document.getElementById('event-select').disabled);await scanner.selectOption('#event-select',A);await scanner.selectOption('#tablet','T01');await scanner.locator('details summary').click();await scanner.locator('#search').fill('PT001');await scanner.locator('#results button').click();await scanner.waitForFunction(()=>document.getElementById('guest-name').textContent==='Dian Koreksi');const h=new URLSearchParams(new URL(initial.url).hash.slice(1));const oldQR=await request.get(origin+'/api.php?'+new URLSearchParams({action:'lookup',event:A,qr_event:A,code:'PT001',token:h.get('token')}));assert.equal((await oldQR.json()).guest.nama,'Dian Koreksi');await scanner.close();
+ const scanner=await browser.newPage();await openPage(scanner,origin+'/');await scanner.waitForFunction(()=>!document.getElementById('event-select').disabled);await scanner.selectOption('#event-select',A);await scanner.selectOption('#tablet','T01');await scanner.locator('details summary').click();await scanner.locator('#search').fill('PT001');await scanner.locator('#results button').click();await scanner.waitForFunction(()=>document.getElementById('guest-name').textContent==='Dian Koreksi');const h=new URLSearchParams(new URL(initial.url).hash.slice(1));const oldQR=await request.get(origin+'/api.php?'+new URLSearchParams({action:'lookup',event:A,qr_event:A,code:'PT001',token:h.get('token')}));assert.equal((await oldQR.json()).guest.nama,'Dian Koreksi');await scanner.close();
  const base={kode:'PT001',...original(saved.guest),original:original(saved.guest)};
  assert.equal((await request.get(`${origin}/api.php?action=update_guest&event=${A}`)).status(),405);
  assert.equal((await request.post(`${origin}/api.php?action=update_guest&event=${A}`,{data:base})).status(),422);
