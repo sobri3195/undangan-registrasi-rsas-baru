@@ -10,6 +10,10 @@ PAKET ACARA RSAS — 19 NOVEMBER 2026, 09.00 WIB
    undanganregistrasirsas.puskesau.com. Sertakan .htaccess dan private/.htaccess.
    SQL dan ZIP tetap di luar document root. Isi private/database.php dengan
    nama database/user berprefix cPanel, password dan host hosting sebenarnya.
+   INI SATU-SATUNYA FILE SETTING: private/database.php.
+   Isi DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS di file itu saja.
+   APP_TIMEZONE sudah Asia/Jakarta (WIB), tidak perlu diganti.
+   Tidak perlu mengubah .htaccess, index.php, API, atau file SQL.
    Saat upgrade, pertahankan konfigurasi Anda yang sudah terisi.
 4. Pastikan DNS/TLS subdomain benar. Buka /private/database.php harus 403.
 5. Buka Admin dan pilih acara RSAS-20261119. Pada instalasi baru:
@@ -32,3 +36,16 @@ setelah SQL berhasil. Sumber adalah teks yang diberikan pengguna; bukan hasil
 verifikasi dokumen TOR asli. Periksa nomenklatur instansi sebelum distribusi.
 
 Paket belum dipasang pada hosting produksi dan tidak berisi kredensial hosting.
+
+SETELAH PASANG:
+- Tampilan Scan Tablet: / atau /index.php?page=scan
+- Tampilan Admin: /index.php?page=admin
+- Pilih acara RSAS-20261119, periksa jumlah 80 / 0 / 80.
+- Pastikan perwakilan yang belum bernama diperbaiki melalui Edit.
+- Cetak QR Massal dari Admin; setelah siap pilih Dibuka di kontrol Status Acara.
+- Semua tablet harus memakai acara yang sama dan ID T01-T06 yang berbeda.
+- Waktu hadir pada layar menggunakan WIB, ekspor CSV tetap mencantumkan UTC.
+
+Tidak ada konfigurasi database yang dikirim melalui percakapan ini. Isi nilainya
+langsung di File Manager cPanel. Jika host/user/password belum cocok, aplikasi
+menampilkan status koneksi tanpa mengungkap password ke browser.

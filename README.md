@@ -7,7 +7,20 @@ PHP Native, MySQL, HTML/CSS dan JavaScript Vanilla. Tidak ada framework atau pro
 
 Semua tablet menggunakan daftar dan kehadiran di **database server yang sama**. Tidak perlu menyalin JSON antarperangkat. Semua halaman terbuka tanpa login sesuai permintaan awal. Koneksi internet diperlukan; jika penyimpanan gagal, aplikasi menampilkan pesan dan tidak mengklaim tamu sudah dicatat. Konfirmasi bisa dicoba lagi setelah koneksi pulih.
 
-## Pasang di cPanel
+## Paket siap unggah — daftar 80 tamu
+
+Gunakan langsung folder **[paket-hosting/hosting-subdomain](paket-hosting/hosting-subdomain)** dan satu berkas **[rsas_acara_19_november_2026.sql](paket-hosting/rsas_acara_19_november_2026.sql)**. Tidak perlu menjalankan Python, Composer, npm atau menggabungkan SQL di hosting.
+
+1. Buat/pilih database dan user di cPanel, hubungkan user ke database, lalu impor satu SQL tersebut lewat phpMyAdmin.
+2. Unggah **isi** `hosting-subdomain/` ke document root subdomain; jangan membuat tingkat URL tambahan.
+3. Edit **satu file** `private/database.php`: isi host, port, nama database, user dan password yang diberikan hosting. Zona waktu sudah WIB. Jangan menaruh SQL di document root.
+4. Buka Admin, periksa acara RSAS-20261119: 80 undangan, 0 hadir, status Persiapan. Periksa identitas penerima lalu buka status penerimaan saat siap.
+
+Panduan singkat ada dalam `PANDUAN.txt` di folder unggahan. Folder siap unggah berisi salinan kode rilis, bukan data produksi. Untuk pemeliharaan kode gunakan `public/`; perbarui paket lewat builder dan cocokkan berkas sebelum rilis. Pertahankan file konfigurasi yang sudah Anda isi ketika melakukan upgrade.
+
+## Instalasi dari kode sumber (opsional)
+
+Untuk pemasangan praktis, gunakan paket siap unggah di atas. Langkah berikut untuk pengembang yang memasang langsung dari `public/`.
 
 1. Buat/pilih database MySQL 8.0.16+ atau MariaDB 10.11+ dan user melalui cPanel. Hubungkan user ke database. Aktifkan PHP 8.2+ dengan PDO MySQL (`pdo_mysql`).
 2. Pilih database tersebut di phpMyAdmin, impor **[sql/05_scan_sederhana.sql](sql/05_scan_sederhana.sql)** lalu **[sql/06_multi_acara.sql](sql/06_multi_acara.sql)**. Tiga tabel aktif: `scan_acara`, `scan_tamu` dan `scan_catatan`. Tidak perlu mengimpor schema/seed/paket SQL pendamping versi lama.
@@ -60,7 +73,7 @@ Di **Admin → Acara baru**, isi nama, kode unik, tanggal dan lokasi (dua terakh
 
 Setiap operasi pencarian, impor CSV, QR, konfirmasi dan ekspor memakai acara terpilih. Kode `PT001` dapat dipakai lagi di acara lain dengan nama tamu berbeda. Kehadiran dua acara tidak digabung. Saat mengganti acara, konfirmasi/pencarian lama dibersihkan. QR tautan yang berisi event berbeda ditolak dengan petunjuk memilih acara yang sesuai; QR kode polos memakai acara terpilih. Untuk mengurangi salah acara, bagikan QR tautan yang dibuat Admin.
 
-Ringkasan Admin dan progres kehadiran selalu untuk acara terpilih, dengan total undangan acara sebagai penyebut. Tanggal acara adalah tanggal kalender; waktu kedatangan disimpan dalam UTC dan ditampilkan menurut zona waktu perangkat. Berkas CSV diberi nama sesuai kode acara. Tidak ada penghapusan atau pengubahan identitas acara pada pembaruan ini.
+Ringkasan Admin dan progres kehadiran selalu untuk acara terpilih, dengan total undangan acara sebagai penyebut. Tanggal acara adalah tanggal kalender; waktu kedatangan disimpan dalam UTC dan ditampilkan dalam WIB (zona waktu pada file konfigurasi, default `Asia/Jakarta`), termasuk jika zona waktu perangkat berbeda. Berkas CSV diberi nama sesuai kode acara. Tidak ada penghapusan atau pengubahan identitas acara pada pembaruan ini.
 
 ## Paket satu folder + satu SQL
 

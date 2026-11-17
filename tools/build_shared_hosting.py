@@ -30,6 +30,7 @@ return [
     'DB_NAME' => '', // contoh: akun_database
     'DB_USER' => '', // contoh: akun_user
     'DB_PASS' => '', // password user database cPanel
+    'APP_TIMEZONE' => 'Asia/Jakarta', // waktu hadir ditampilkan dalam WIB
 ];
 ''')
 event_bundle = len(sys.argv)>2 and sys.argv[2]=='--event-rsas'

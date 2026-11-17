@@ -19,10 +19,11 @@ function configuration(): array {
     if (!is_file($file)) $file = dirname(__DIR__, 2) . '/config.local.php';
     $local = is_file($file) ? require $file : [];
     $config = [];
-    foreach (['DB_HOST'=>'localhost','DB_PORT'=>'3306','DB_NAME'=>'','DB_USER'=>'','DB_PASS'=>''] as $key=>$default) {
+    foreach (['DB_HOST'=>'localhost','DB_PORT'=>'3306','DB_NAME'=>'','DB_USER'=>'','DB_PASS'=>'','APP_TIMEZONE'=>'Asia/Jakarta'] as $key=>$default) {
         $env = getenv($key);
         $config[$key] = $env !== false ? $env : ($local[$key] ?? $default);
     }
+    try {new DateTimeZone($config['APP_TIMEZONE']);} catch (Throwable $e) {$config['APP_TIMEZONE']='Asia/Jakarta';}
     return $config;
 }
 function database(): PDO {
