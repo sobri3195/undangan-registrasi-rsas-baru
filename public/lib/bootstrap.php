@@ -14,7 +14,9 @@ function esc(string $s): string { return htmlspecialchars($s, ENT_QUOTES | ENT_S
 function configuration(): array {
     static $config;
     if ($config !== null) return $config;
-    $file = dirname(__DIR__, 2) . '/config.local.php';
+    $file = dirname(__DIR__) . '/private/database.php';
+    // The hosting bundle is self-contained; keep the older external location as fallback.
+    if (!is_file($file)) $file = dirname(__DIR__, 2) . '/config.local.php';
     $local = is_file($file) ? require $file : [];
     $config = [];
     foreach (['DB_HOST'=>'localhost','DB_PORT'=>'3306','DB_NAME'=>'','DB_USER'=>'','DB_PASS'=>''] as $key=>$default) {

@@ -1,0 +1,41 @@
+PAKET REGISTRASI RSAS — SATU FOLDER + SATU SQL
+
+1. Buat/pilih database dan user di cPanel; hubungkan user ke database.
+   Gunakan MySQL 8.0.16+ / MariaDB 10.11+, PHP 8.2+ dan ekstensi pdo_mysql.
+2. Buka phpMyAdmin, pilih database tadi, impor rsas_dummy.sql SATU KALI.
+   SQL sudah berisi tiga tabel, dua acara, 11 undangan sintetis, dan contoh
+   kehadiran dari T01-T06. Tidak perlu mengimpor SQL lain.
+3. Buka document root subdomain undanganregistrasirsas.puskesau.com melalui
+   File Manager. Unggah ISI folder hosting-subdomain/ langsung ke sana.
+   index.php, api.php, .htaccess, assets/, lib/, private/ harus sejajar di root.
+   Jangan meletakkan folder hosting-subdomain sebagai subfolder URL.
+4. Edit private/database.php melalui File Manager cPanel:
+   DB_HOST sesuai hosting (umumnya localhost), DB_NAME dan DB_USER dengan
+   prefix akun cPanel, serta DB_PASS sesuai password user database.
+   Tidak perlu mengedit kode lain. Jangan membagikan file konfigurasi yang terisi.
+   private/database.php diprioritaskan pada paket ini. Lokasi konfigurasi lama
+   config.local.php satu tingkat di atas root menjadi cadangan bila file private
+   tidak tersedia. Variabel database server tetap memiliki prioritas tertinggi.
+5. Aktifkan TLS untuk subdomain dan pastikan DNS memakai IP hosting sebenarnya.
+   Server harus mengizinkan .htaccess (Apache mod_rewrite/AllowOverride).
+   private/ dilindungi rewrite root serta private/.htaccess. Pastikan membuka
+   https://undanganregistrasirsas.puskesau.com/private/database.php
+   menghasilkan 403; jangan mengaktifkan situs jika file konfigurasi bisa diunduh.
+   SQL dan ZIP tidak perlu diunggah ke document root.
+6. Buka https://undanganregistrasirsas.puskesau.com/index.php?page=admin
+   Pilih DEMO - Registrasi Undangan RSAU: 8 undangan, 5 hadir, 3 belum hadir.
+   PT001 tercatat T02 dan T03 tetapi dihitung satu tamu. PT002 dihitung sendiri.
+   Pilih DEMO - Temu Mitra RSAU: 3 undangan, 1 hadir, 2 belum hadir.
+7. Uji scanner: buka / pada tablet, pilih acara DEMO pertama dan tablet T01-T06.
+   Cari VIP002 atau UM003 secara manual; nama muncul sebelum Konfirmasi Hadir.
+   Untuk kamera, buat QR lewat Admin > Cari undangan dan buat QR, simpan PNG,
+   lalu pindai menggunakan tablet lain. Kamera memerlukan HTTPS dan izin browser.
+   Hasil akan muncul pada Admin dalam sekitar 3 detik. Semua tablet perlu internet.
+
+CSV latihan yang cocok dengan acara DEMO pertama: demo-undangan.csv.
+Impor ulang CSV itu tidak menambah slot yang sama. Jangan memakai dummy untuk
+acara nyata. Untuk acara nyata klik Acara baru, lalu impor CSV sebenarnya.
+Token dummy bersifat publik/sintetis; jangan dipakai untuk undangan nyata.
+
+Paket tidak berisi akun/password hosting dan belum dipasang di hosting produksi.
+Simpan backup database melalui cPanel/phpMyAdmin. Seluruh halaman tetap tanpa login.

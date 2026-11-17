@@ -61,3 +61,9 @@ Di **Admin → Acara baru**, isi nama, kode unik, tanggal dan lokasi (dua terakh
 Setiap operasi pencarian, impor CSV, QR, konfirmasi dan ekspor memakai acara terpilih. Kode `PT001` dapat dipakai lagi di acara lain dengan nama tamu berbeda. Kehadiran dua acara tidak digabung. Saat mengganti acara, konfirmasi/pencarian lama dibersihkan. QR tautan yang berisi event berbeda ditolak dengan petunjuk memilih acara yang sesuai; QR kode polos memakai acara terpilih. Untuk mengurangi salah acara, bagikan QR tautan yang dibuat Admin.
 
 Ringkasan Admin dan progres kehadiran selalu untuk acara terpilih, dengan total undangan acara sebagai penyebut. Tanggal acara adalah tanggal kalender; waktu kedatangan disimpan dalam UTC dan ditampilkan menurut zona waktu perangkat. Berkas CSV diberi nama sesuai kode acara. Tidak ada penghapusan atau pengubahan identitas acara pada pembaruan ini.
+
+## Paket satu folder + satu SQL
+
+Jalankan `python3 tools/build_shared_hosting.py /workspace/rsas-paket-hosting` (pilih output baru jika sudah ada). ZIP berisi tepat satu folder `hosting-subdomain/` dan satu berkas `rsas_dummy.sql`. Unggah **isi folder hosting-subdomain** ke document root, lalu isi `private/database.php`. File konfigurasi ini diprioritaskan jika tersedia; instalasi lama tetap dapat memakai `config.local.php` di luar document root. Variabel server masih memiliki prioritas tertinggi.
+
+Impor `rsas_dummy.sql` ke database cPanel yang dipilih melalui phpMyAdmin; tidak perlu SQL 05/06 terpisah. Dummy menyediakan dua acara, 11 slot, dan contoh scan semua tablet: DEMO-RSAS-2026 memiliki 8 undangan / 5 hadir unik dari 6 catatan; DEMO-MITRA-2027 memiliki 3 undangan / 1 hadir. Token demo bukan untuk undangan nyata. Buat acara baru untuk penggunaan sebenarnya. `PANDUAN.txt` di folder unggahan menjelaskan langkah pemasangan dan cara memeriksa hasil. SQL tetap di luar folder web.
