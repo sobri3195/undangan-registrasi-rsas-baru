@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "slots": [
+    {
+      "event": "DEMO-RSAS",
+      "code": "VIP001",
+      "name": "Dr. Raka Sintetis",
+      "company": "Instansi Demo",
+      "position": "Pimpinan",
+      "category": "VIP",
+      "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "event": "DEMO-RSAS",
+      "code": "PT001",
+      "name": "Dian Contoh",
+      "company": "PT Mitra Sintetis",
+      "position": "Direktur",
+      "category": "mitra PT",
+      "token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "event": "DEMO-RSAS",
+      "code": "PT002",
+      "name": "Sari Contoh",
+      "company": "PT Mitra Sintetis",
+      "position": "Manajer",
+      "category": "mitra PT",
+      "token": "cccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ],
+  "logs": [
+    {
+      "id": "demo-log-T02",
+      "event": "DEMO-RSAS",
+      "code": "PT001",
+      "token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "tablet": "T02",
+      "at": "2026-11-17T01:00:00.000Z"
+    }
+  ],
+  "rsvps": []
+}
