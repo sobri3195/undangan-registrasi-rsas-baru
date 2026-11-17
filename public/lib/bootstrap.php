@@ -17,11 +17,10 @@ function configuration(): array {
     $file = dirname(__DIR__, 2) . '/config.local.php';
     $local = is_file($file) ? require $file : [];
     $config = [];
-    foreach (['DB_HOST'=>'localhost','DB_PORT'=>'3306','DB_NAME'=>'','DB_USER'=>'','DB_PASS'=>'','EVENT_CODE'=>'RSAS-2026'] as $key=>$default) {
+    foreach (['DB_HOST'=>'localhost','DB_PORT'=>'3306','DB_NAME'=>'','DB_USER'=>'','DB_PASS'=>''] as $key=>$default) {
         $env = getenv($key);
         $config[$key] = $env !== false ? $env : ($local[$key] ?? $default);
     }
-    if (!preg_match('/\A[A-Za-z0-9_-]{1,64}\z/', $config['EVENT_CODE'])) throw new RuntimeException('Kode acara konfigurasi tidak valid.');
     return $config;
 }
 function database(): PDO {

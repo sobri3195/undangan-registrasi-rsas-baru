@@ -6,5 +6,4 @@ return [
     'DB_NAME'=>'prefix_database',
     'DB_USER'=>'prefix_user',
     'DB_PASS'=>'ganti_di_hosting',
-    'EVENT_CODE'=>'RSAS-2026',
 ];
